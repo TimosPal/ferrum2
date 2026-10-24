@@ -1,0 +1,3 @@
+# Point clangd at the debug preset's compile database.
+CompileFlags:
+  CompilationDatabase: build/debug

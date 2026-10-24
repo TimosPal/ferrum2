@@ -1,0 +1,38 @@
+# Build output
+/build/
+/out/
+cmake-build-*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CpackConfig.cmake
+CPackSourceConfig.cmake
+
+# Visual Studio / VS Code
+.vs/
+*.suo
+*.user
+.vscode/
+
+# CLion / other IDEs
+.idea/
+.cache/
+
+# Binaries
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.obj
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Local-only (not shared)
+/AGENTS.md

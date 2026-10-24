@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+if ! command -v clang-format >/dev/null 2>&1; then
+    echo "format-staged: clang-format not found on PATH. Install it or add it to PATH, then retry." >&2
+    exit 1
+fi
+
+clang_format="$(command -v clang-format)"
+files="$(git diff --cached --name-only --diff-filter=ACM -- '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.hxx')"
+
+if [ -z "$files" ]; then
+    echo "format-staged: no staged C/C++ files to format."
+    exit 0
+fi
+
+printf '%s\n' "$files" | while IFS= read -r file; do
+    [ -n "$file" ] || continue
+    "$clang_format" -i --style=file "$file"
+done
+
+echo "format-staged: formatting complete. Review and stage the changes before committing."

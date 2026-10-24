@@ -1,0 +1,32 @@
+#!/bin/sh
+# Pre-commit hook: block commits that contain clang-format violations.
+
+set -eu
+
+# Locate clang-format on PATH only; there is no fallback.
+if ! command -v clang-format >/dev/null 2>&1; then
+    echo "pre-commit: clang-format not found on PATH. Install it or add it to PATH, then retry." >&2
+    exit 1
+fi
+clang_format="$(command -v clang-format)"
+
+report=""
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    if ! "$clang_format" --dry-run --Werror --style=file "$f" >/dev/null 2>&1; then
+        report="${report}  ${f}
+"
+    fi
+done <<EOF
+$(git diff --cached --name-only --diff-filter=ACM -- '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.hxx')
+EOF
+
+if [ -n "$report" ]; then
+    echo "pre-commit: clang-format found violations in:" >&2
+    printf '%s' "$report" >&2
+    echo "" >&2
+    echo "pre-commit: run 'sh .githooks/format-staged' and stage the formatting changes." >&2
+    exit 1
+fi
+
+exit 0

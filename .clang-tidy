@@ -1,0 +1,32 @@
+# Ferrum Engine clang-tidy configuration.
+---
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-exception-escape,
+  -cppcoreguidelines-avoid-do-while,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -performance-enum-size,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -portability-avoid-pragma-once,
+  -cppcoreguidelines-macro-usage
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '^(ferrumCore|ferrumGUI|ferrumSandbox|ferrumUtils)/.*'
+FormatStyle: file
+CheckOptions:
+  - key: readability-identifier-length.IgnoredParameterNames
+    value: '^(n|id)$'
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: '^(id|it)$'
