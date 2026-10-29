@@ -33,7 +33,8 @@ GLBuffer::~GLBuffer() {
     }
 }
 
-GLBuffer::GLBuffer(GLBuffer&& other) noexcept : id_(std::exchange(other.id_, 0)) {}
+GLBuffer::GLBuffer(GLBuffer&& other) noexcept
+    : id_(std::exchange(other.id_, 0)), size_(std::exchange(other.size_, 0)) {}
 
 GLBuffer& GLBuffer::operator=(GLBuffer&& other) noexcept {
     if (this != &other) {
@@ -41,6 +42,7 @@ GLBuffer& GLBuffer::operator=(GLBuffer&& other) noexcept {
             glDeleteBuffers(1, &id_);
         }
         id_ = std::exchange(other.id_, 0);
+        size_ = std::exchange(other.size_, 0);
     }
     return *this;
 }
@@ -51,6 +53,31 @@ void GLBuffer::Upload(std::span<const std::byte> data, Usage usage) {
                 "OpenGL buffer data is too large");
     FE_GL(glNamedBufferData(id_, static_cast<GLsizeiptr>(data.size()), data.data(),
                             BufferUsage(usage)));
+    size_ = data.size();
+}
+
+void GLBuffer::Allocate(std::size_t size, Usage usage) {
+    detail::RequireValid(IsValid(), "allocate storage", "OpenGL buffer");
+    FE_THROW_IF(size > static_cast<std::size_t>(std::numeric_limits<GLsizeiptr>::max()),
+                "OpenGL buffer size is too large");
+    FE_GL(glNamedBufferData(id_, static_cast<GLsizeiptr>(size), nullptr, BufferUsage(usage)));
+    size_ = size;
+}
+
+void GLBuffer::Update(std::size_t offset, std::span<const std::byte> data) {
+    detail::RequireValid(IsValid(), "update data", "OpenGL buffer");
+    FE_THROW_IF(offset > size_ || data.size() > size_ - offset,
+                "OpenGL buffer update range exceeds its allocated size");
+    FE_THROW_IF(offset > static_cast<std::size_t>(std::numeric_limits<GLintptr>::max()),
+                "OpenGL buffer update offset is too large");
+    FE_THROW_IF(data.size() > static_cast<std::size_t>(std::numeric_limits<GLsizeiptr>::max()),
+                "OpenGL buffer update data is too large");
+    if (data.empty()) {
+        return;
+    }
+
+    FE_GL(glNamedBufferSubData(id_, static_cast<GLintptr>(offset),
+                               static_cast<GLsizeiptr>(data.size()), data.data()));
 }
 
 }  // namespace ferrum::renderer::opengl
