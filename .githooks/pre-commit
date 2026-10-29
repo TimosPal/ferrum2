@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-commit hook: block commits that contain clang-format violations.
+# Pre-commit hook: check formatting, then build and run unit tests.
 
 set -eu
 
@@ -29,4 +29,14 @@ if [ -n "$report" ]; then
     exit 1
 fi
 
-exit 0
+echo "pre-commit: building and running unit tests from the working tree..."
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -File .githooks/run-tests.ps1
+        ;;
+    *)
+        cmake --preset debug -DBUILD_TESTING=ON
+        cmake --build --preset debug --target ferrumCommonTests ferrumCoreTests
+        ctest --preset unit
+        ;;
+esac

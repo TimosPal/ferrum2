@@ -38,3 +38,7 @@ target_link_libraries(ferrumCore
     PUBLIC Ferrum::Common glm::glm
     PRIVATE stb_image freetype glad_gl_core_46
 )
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

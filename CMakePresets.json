@@ -23,6 +23,23 @@
       }
     }
   ],
+  "testPresets": [
+    {
+      "name": "unit",
+      "configurePreset": "debug",
+      "filter": {
+        "include": {
+          "label": "^unit$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    }
+  ],
   "buildPresets": [
     {
       "name": "debug",

@@ -12,7 +12,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FERRUM_PLATFORM_BACKEND "GLFW" CACHE STRING "Platform backend used by Ferrum Core")
 set_property(CACHE FERRUM_PLATFORM_BACKEND PROPERTY STRINGS GLFW)
 
+include(CTest)
+
 include(cmake/ClangTidy.cmake)
+
+if(BUILD_TESTING)
+    include(cmake/Dependencies.cmake)
+    include(GoogleTest)
+endif()
 
 add_subdirectory(ferrumCommon)
 add_subdirectory(ferrumCore)
