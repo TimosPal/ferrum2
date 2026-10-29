@@ -4,9 +4,9 @@
 
 struct GLFWwindow;
 
-namespace ferrum::graphics::backends {
+namespace ferrum::graphics::glfw {
 
-class GLFWOpenGLWindowBinding final : public OpenGLWindowBinding {
+class GLFWOpenGLWindowBinding final : public graphics::OpenGLWindowBinding {
 public:
     explicit GLFWOpenGLWindowBinding(GLFWwindow* window);
 
@@ -19,4 +19,4 @@ private:
     GLFWwindow* window_;
 };
 
-}  // namespace ferrum::graphics::backends
+}  // namespace ferrum::graphics::glfw

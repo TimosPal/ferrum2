@@ -2,9 +2,9 @@
 
 #include "ferrum/core/Platform.hpp"
 
-namespace ferrum::core::backends {
+namespace ferrum::core::glfw {
 
-class GLFWPlatform final : public Platform {
+class GLFWPlatform final : public core::Platform {
 public:
     GLFWPlatform();
     ~GLFWPlatform() override;
@@ -18,4 +18,4 @@ public:
         const ferrum::window::WindowDesc& data, ferrum::graphics::GraphicsAPI api) override;
 };
 
-}  // namespace ferrum::core::backends
+}  // namespace ferrum::core::glfw

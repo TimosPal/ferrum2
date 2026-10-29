@@ -1,9 +1,9 @@
-#include "ferrum/graphics/backends/GLFWOpenGLWindowBinding.hpp"
+#include "ferrum/graphics/backends/glfw/GLFWOpenGLWindowBinding.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-namespace ferrum::graphics::backends {
+namespace ferrum::graphics::glfw {
 
 GLFWOpenGLWindowBinding::GLFWOpenGLWindowBinding(GLFWwindow* window) : window_(window) {}
 
@@ -22,4 +22,4 @@ glm::ivec2 GLFWOpenGLWindowBinding::GetFramebufferSize() const {
 
 void GLFWOpenGLWindowBinding::SwapBuffers() { glfwSwapBuffers(window_); }
 
-}  // namespace ferrum::graphics::backends
+}  // namespace ferrum::graphics::glfw

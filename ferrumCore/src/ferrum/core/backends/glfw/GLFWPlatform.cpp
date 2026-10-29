@@ -1,4 +1,4 @@
-#include "ferrum/core/backends/GLFWPlatform.hpp"
+#include "ferrum/core/backends/glfw/GLFWPlatform.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -6,9 +6,9 @@
 
 #include "ferrum/common/exception.hpp"
 #include "ferrum/common/log.hpp"
-#include "ferrum/window/backends/GLFWWindow.hpp"
+#include "ferrum/window/backends/glfw/GLFWWindow.hpp"
 
-namespace ferrum::core::backends {
+namespace ferrum::core::glfw {
 
 namespace {
 
@@ -37,13 +37,13 @@ GLFWPlatform::~GLFWPlatform() {
 
 std::unique_ptr<ferrum::window::Window> GLFWPlatform::CreateWindow(
     const ferrum::window::WindowDesc& data, ferrum::graphics::GraphicsAPI api) {
-    return std::make_unique<ferrum::window::backends::GLFWWindow>(data, api);
+    return std::make_unique<ferrum::window::glfw::GLFWWindow>(data, api);
 }
 
-}  // namespace ferrum::core::backends
+}  // namespace ferrum::core::glfw
 
 namespace ferrum::core {
 
-std::unique_ptr<Platform> Platform::Create() { return std::make_unique<backends::GLFWPlatform>(); }
+std::unique_ptr<Platform> Platform::Create() { return std::make_unique<glfw::GLFWPlatform>(); }
 
 }  // namespace ferrum::core

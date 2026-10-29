@@ -7,9 +7,9 @@
 
 struct GLFWwindow;
 
-namespace ferrum::window::backends {
+namespace ferrum::window::glfw {
 
-class GLFWWindow final : public Window {
+class GLFWWindow final : public window::Window {
 public:
     GLFWWindow(const WindowDesc& data, graphics::GraphicsAPI api);
     GLFWWindow(const GLFWWindow&) = delete;
@@ -31,4 +31,4 @@ private:
     std::unique_ptr<GLFWwindow, WindowDeleter> window_;
 };
 
-}  // namespace ferrum::window::backends
+}  // namespace ferrum::window::glfw

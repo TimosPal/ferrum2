@@ -1,4 +1,4 @@
-#include "GLFWWindow.hpp"
+#include "ferrum/window/backends/glfw/GLFWWindow.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -7,9 +7,9 @@
 
 #include "ferrum/common/assert.hpp"
 #include "ferrum/common/exception.hpp"
-#include "ferrum/graphics/backends/GLFWOpenGLWindowBinding.hpp"
+#include "ferrum/graphics/backends/glfw/GLFWOpenGLWindowBinding.hpp"
 
-namespace ferrum::window::backends {
+namespace ferrum::window::glfw {
 
 namespace {
 
@@ -35,7 +35,7 @@ std::unique_ptr<graphics::WindowGraphicsBinding> CreateGraphicsBinding(graphics:
                                                                        bool vsync) {
     switch (api) {
         case graphics::GraphicsAPI::OpenGL: {
-            auto binding = std::make_unique<graphics::backends::GLFWOpenGLWindowBinding>(window);
+            auto binding = std::make_unique<graphics::glfw::GLFWOpenGLWindowBinding>(window);
             binding->MakeCurrent();
             glfwSwapInterval(vsync ? 1 : 0);
             return binding;
@@ -56,7 +56,7 @@ void GLFWWindow::WindowDeleter::operator()(GLFWwindow* window) const noexcept {
     }
 }
 
-GLFWWindow::GLFWWindow(const WindowDesc& data, graphics::GraphicsAPI api) : Window(data) {
+GLFWWindow::GLFWWindow(const WindowDesc& data, graphics::GraphicsAPI api) : window::Window(data) {
     ConfigureWindowHints(api);
     window_.reset(
         glfwCreateWindow(desc_.width, desc_.height, desc_.title.c_str(), nullptr, nullptr));
@@ -95,4 +95,4 @@ bool GLFWWindow::ShouldClose() const {
     return glfwWindowShouldClose(window_.get()) != 0;
 }
 
-}  // namespace ferrum::window::backends
+}  // namespace ferrum::window::glfw

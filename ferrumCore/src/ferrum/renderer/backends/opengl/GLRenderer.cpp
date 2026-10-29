@@ -1,12 +1,13 @@
-#include "ferrum/renderer/backends/OpenGLRenderer.hpp"
+#include "ferrum/renderer/backends/opengl/GLRenderer.hpp"
 
 #include <glad/gl.h>
 
 #include <mutex>
 
 #include "ferrum/common/exception.hpp"
+#include "ferrum/renderer/backends/opengl/utils.hpp"
 
-namespace ferrum::renderer {
+namespace ferrum::renderer::opengl {
 namespace {
 
 std::once_flag gladInitialization;
@@ -17,7 +18,7 @@ GLADapiproc LoadOpenGLProcedure(void* binding, const char* name) {
 
 }  // namespace
 
-OpenGLRenderer::OpenGLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(binding) {
+GLRenderer::GLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(binding) {
     binding_.MakeCurrent();
     std::call_once(gladInitialization, [&] {
         FE_THROW_IF(!gladLoadGLUserPtr(LoadOpenGLProcedure, &binding_),
@@ -25,17 +26,17 @@ OpenGLRenderer::OpenGLRenderer(graphics::OpenGLWindowBinding& binding) : binding
     });
 }
 
-void OpenGLRenderer::Clear(const graphics::Color& color) {
+void GLRenderer::Clear(const graphics::Color& color) {
     binding_.MakeCurrent();
     const auto framebufferSize = binding_.GetFramebufferSize();
-    glViewport(0, 0, framebufferSize.x, framebufferSize.y);
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
+    FE_GL(glViewport(0, 0, framebufferSize.x, framebufferSize.y));
+    FE_GL(glClearColor(color.r, color.g, color.b, color.a));
+    FE_GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void OpenGLRenderer::Present() {
+void GLRenderer::Present() {
     binding_.MakeCurrent();
     binding_.SwapBuffers();
 }
 
-}  // namespace ferrum::renderer
+}  // namespace ferrum::renderer::opengl

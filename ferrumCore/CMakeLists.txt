@@ -4,10 +4,13 @@ add_library(Ferrum::Core ALIAS ferrumCore)
 
 set(FERRUM_CORE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(FERRUM_CORE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(FERRUM_CORE_ASSET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 set(FERRUM_CORE_SOURCES
     ${FERRUM_CORE_SRC_DIR}/ferrum/resources/loaders.cpp
     ${FERRUM_CORE_SRC_DIR}/ferrum/renderer/Renderer.cpp
-    ${FERRUM_CORE_SRC_DIR}/ferrum/renderer/backends/OpenGLRenderer.cpp
+    ${FERRUM_CORE_SRC_DIR}/ferrum/renderer/backends/opengl/GLProgram.cpp
+    ${FERRUM_CORE_SRC_DIR}/ferrum/renderer/backends/opengl/GLRenderer.cpp
+    ${FERRUM_CORE_SRC_DIR}/ferrum/renderer/backends/opengl/GLShader.cpp
     ${FERRUM_CORE_SRC_DIR}/ferrum/window/Window.cpp
 )
 
@@ -15,9 +18,9 @@ include(cmake/Dependencies.cmake)
 
 if(FERRUM_PLATFORM_BACKEND STREQUAL "GLFW")
     list(APPEND FERRUM_CORE_SOURCES
-        ${FERRUM_CORE_SRC_DIR}/ferrum/core/backends/GLFWPlatform.cpp
-        ${FERRUM_CORE_SRC_DIR}/ferrum/graphics/backends/GLFWOpenGLWindowBinding.cpp
-        ${FERRUM_CORE_SRC_DIR}/ferrum/window/backends/GLFWWindow.cpp
+        ${FERRUM_CORE_SRC_DIR}/ferrum/core/backends/glfw/GLFWPlatform.cpp
+        ${FERRUM_CORE_SRC_DIR}/ferrum/graphics/backends/glfw/GLFWOpenGLWindowBinding.cpp
+        ${FERRUM_CORE_SRC_DIR}/ferrum/window/backends/glfw/GLFWWindow.cpp
     )
     target_link_libraries(ferrumCore PRIVATE glfw)
 else()
@@ -29,6 +32,11 @@ target_sources(ferrumCore PRIVATE ${FERRUM_CORE_SOURCES})
 target_include_directories(ferrumCore
     PUBLIC ${FERRUM_CORE_INCLUDE_DIR}
     PRIVATE ${FERRUM_CORE_SRC_DIR}
+)
+
+# Development assets are loaded directly from the source tree, independent of the working directory.
+target_compile_definitions(ferrumCore PUBLIC
+    FERRUM_CORE_ASSET_ROOT="${FERRUM_CORE_ASSET_ROOT}"
 )
 
 target_link_libraries(ferrumCore
