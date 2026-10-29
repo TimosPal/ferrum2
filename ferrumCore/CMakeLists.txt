@@ -7,9 +7,12 @@ include(cmake/Dependencies.cmake)
 target_sources(ferrumCore PRIVATE
     src/ferrum/resources/loaders.cpp
     src/ferrum/renderer/Renderer.cpp
+    src/ferrum/renderer/backends/opengl/GLBuffer.cpp
+    src/ferrum/renderer/backends/opengl/LayoutDescriptor.cpp
     src/ferrum/renderer/backends/opengl/GLProgram.cpp
     src/ferrum/renderer/backends/opengl/GLRenderer.cpp
     src/ferrum/renderer/backends/opengl/GLShader.cpp
+    src/ferrum/renderer/backends/opengl/GLVertexArray.cpp
     src/ferrum/window/Window.cpp
 )
 
