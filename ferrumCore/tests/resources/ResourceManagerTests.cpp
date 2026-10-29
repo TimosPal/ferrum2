@@ -10,6 +10,8 @@ namespace {
 
 using types::TextResource;
 
+class UnregisteredResource final : public Resource {};
+
 TEST(ResourceManager, RetrievesCreatedResourcesById) {
     ResourceManager manager;
     auto text = manager.CreateResource(TextResource("hello"));
@@ -18,6 +20,18 @@ TEST(ResourceManager, RetrievesCreatedResourcesById) {
     EXPECT_EQ(retrieved.GetResource(), text.handle.GetResource());
     EXPECT_EQ(retrieved.GetResource()->GetText(), "hello");
     EXPECT_FALSE(manager.HasResource({}));
+}
+
+TEST(ResourceManager, ReturnsNullHandleForMissingResourceId) {
+    ResourceManager manager;
+    auto missing = manager.GetResource<TextResource>({});
+    EXPECT_FALSE(missing.IsValid());
+    EXPECT_FALSE(manager.HasResource({}));
+}
+
+TEST(ResourceManager, RejectsLoadWithoutRegisteredLoader) {
+    ResourceManager manager;
+    EXPECT_THROW(manager.LoadResource<UnregisteredResource>("unregistered"), common::Exception);
 }
 
 TEST(ResourceManager, KeepsCreatedResourcesAfterLastHandleIsReleased) {

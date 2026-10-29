@@ -3,7 +3,6 @@
 #include <typeinfo>
 #include <utility>
 
-#include "ferrum/common/assert.hpp"
 #include "ferrum/common/exception.hpp"
 #include "ferrum/resources/ResourceEntry.hpp"
 
@@ -51,7 +50,7 @@ public:
     bool IsValid() const { return resource_entry_ != nullptr; }
 
     T* GetResource() {
-        FE_ASSERT(IsValid(), "Resource entry is null");
+        FE_THROW_IF(!IsValid(), "Resource entry is null");
         if (cached_resource_ != nullptr) {
             return cached_resource_;
         }

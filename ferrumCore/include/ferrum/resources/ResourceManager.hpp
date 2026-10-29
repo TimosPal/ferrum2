@@ -8,7 +8,7 @@
 #include <typeindex>
 #include <utility>
 
-#include "ferrum/common/assert.hpp"
+#include "ferrum/common/exception.hpp"
 #include "ferrum/containers/SlotMap.hpp"
 #include "ferrum/resources/LoaderManager.hpp"
 #include "ferrum/resources/ResourceEntry.hpp"
@@ -62,7 +62,6 @@ template <typename T>
 inline auto ResourceManager::GetResource(ResourceId id) {
     auto* entry_ptr = resources_.Get(id);
     bool entry_exists = entry_ptr && *entry_ptr;
-    FE_ASSERT(entry_exists, "Resource entry not found");
     if (!entry_exists) {
         // Not found in the resource manager, return a null handle
         return ResourceHandle<T>(nullptr);
@@ -89,7 +88,7 @@ inline auto ResourceManager::LoadResource(const std::filesystem::path& load_path
     }
 
     auto loader_callback = loaders_.GetLoader<T>();
-    FE_ASSERT(loader_callback != nullptr, "Loader callback is not set");
+    FE_THROW_IF(loader_callback == nullptr, "Loader callback is not set");
     std::unique_ptr<ResourceEntry> entry = std::make_unique<ResourceEntry>(ResourceEntry{
         .loader = Loader{normalized_path, loader_callback},
         .policy = ResourceEntry::EvictionPolicy::Discard,

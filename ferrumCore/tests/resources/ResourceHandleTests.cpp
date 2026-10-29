@@ -21,6 +21,11 @@ TEST(ResourceHandle, NullHandlesCanBeCopiedAndMoved) {
     EXPECT_FALSE(moved.IsValid());
 }
 
+TEST(ResourceHandle, RejectsAccessThroughNullHandle) {
+    ResourceHandle<TextResource> empty(nullptr);
+    EXPECT_THROW(empty.GetResource(), common::Exception);
+}
+
 TEST(ResourceHandle, CopyAndMoveConstructionMaintainReferenceCounts) {
     ResourceEntry entry{.resource = std::make_unique<TextResource>("hello")};
     {
@@ -88,6 +93,16 @@ TEST(ResourceHandle, RejectsNullLoaderResults) {
             [](const std::filesystem::path&) -> std::unique_ptr<Resource> { return nullptr; })};
     ResourceHandle<TextResource> handle(&entry);
     EXPECT_THROW(handle.GetResource(), common::Exception);
+}
+
+TEST(ResourceHandle, RejectsMissingOrInvalidLoader) {
+    ResourceEntry missing_loader;
+    ResourceHandle<TextResource> missing_loader_handle(&missing_loader);
+    EXPECT_THROW(missing_loader_handle.GetResource(), common::Exception);
+
+    ResourceEntry invalid_loader{.loader = Loader("virtual.txt", {})};
+    ResourceHandle<TextResource> invalid_loader_handle(&invalid_loader);
+    EXPECT_THROW(invalid_loader_handle.GetResource(), common::Exception);
 }
 
 }  // namespace

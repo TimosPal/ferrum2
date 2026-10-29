@@ -5,7 +5,7 @@
 #include <optional>
 #include <utility>
 
-#include "ferrum/common/assert.hpp"
+#include "ferrum/common/exception.hpp"
 #include "ferrum/resources/LoaderManager.hpp"
 #include "ferrum/resources/Resource.hpp"
 
@@ -19,7 +19,7 @@ public:
     bool HasLoaderCallback() const { return loader_cb != nullptr; }
     bool IsValid() const { return HasLoadPath() && HasLoaderCallback(); }
     auto Load() {
-        FE_ASSERT(IsValid(), "Loader is not valid");
+        FE_THROW_IF(!IsValid(), "Loader is not valid");
         return loader_cb(load_path);
     }
 
@@ -47,7 +47,7 @@ struct ResourceEntry {
             return resource.get();
         }
 
-        FE_ASSERT(loader.has_value(), "Loader is not set");
+        FE_THROW_IF(!loader.has_value(), "Loader is not set");
         // Load can throw
         resource = loader->Load();
         return resource.get();
