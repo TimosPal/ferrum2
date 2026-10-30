@@ -23,6 +23,8 @@ public:
     void Update(std::size_t offset, std::span<const std::byte> data);
     unsigned int Id() const noexcept { return id_; }
 
+    std::size_t BytesSize() const noexcept { return size_; }
+
 private:
     explicit GLBuffer(std::nullptr_t) {}
 

@@ -29,6 +29,31 @@ GLenum GetGLAttributeType(LayoutDescriptor::AttributeType type) {
     FE_THROW("Unsupported OpenGL vertex attribute type");
 }
 
+void ValidateVertexBinding(const LayoutDescriptor& layout, unsigned int binding_index) {
+    FE_THROW_IF(!layout.IsValid() || layout.Stride() == 0,
+                "OpenGL vertex layout must be valid and have a nonzero stride");
+    FE_THROW_IF(layout.Stride() > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()),
+                "OpenGL vertex stride is too large");
+    GLint max_bindings = 0;
+    GLint max_stride = 0;
+    GLint max_attributes = 0;
+    GLint max_offset = 0;
+    FE_GL(glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &max_bindings));
+    FE_GL(glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &max_stride));
+    FE_GL(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_attributes));
+    FE_GL(glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &max_offset));
+    FE_THROW_IF(std::cmp_greater_equal(binding_index, max_bindings),
+                "OpenGL vertex binding index exceeds the device limit");
+    FE_THROW_IF(layout.Stride() > static_cast<std::size_t>(max_stride),
+                "OpenGL vertex stride exceeds the device limit");
+    for (const auto& metadata : layout.Metadata()) {
+        FE_THROW_IF(std::cmp_greater_equal(metadata.attribute.location, max_attributes),
+                    "OpenGL vertex attribute location exceeds the device limit");
+        FE_THROW_IF(std::cmp_greater(metadata.offset, max_offset),
+                    "OpenGL vertex attribute offset exceeds the device limit");
+    }
+}
+
 void ConfigureVertexAttribute(GLuint vertex_array_id,
                               const LayoutDescriptor::AttributeMetadata& metadata,
                               GLuint binding_index) {
@@ -74,8 +99,7 @@ void GLVertexArray::SetVertexBuffer(const GLBuffer& buffer, const LayoutDescript
                                     unsigned int binding_index) {
     detail::RequireValid(IsValid(), "configure vertex buffer", "OpenGL vertex array");
     detail::RequireValid(buffer.IsValid(), "configure vertex buffer", "OpenGL buffer");
-    FE_THROW_IF(layout.Stride() > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()),
-                "OpenGL vertex stride is too large");
+    ValidateVertexBinding(layout, binding_index);
     FE_GL(glVertexArrayVertexBuffer(id_, binding_index, buffer.Id(), 0,
                                     static_cast<GLsizei>(layout.Stride())));
 
