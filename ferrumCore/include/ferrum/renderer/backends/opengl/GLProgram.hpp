@@ -10,7 +10,7 @@ class GLProgram {
 public:
     // Borrows compiled shaders for linking and detaches them before returning.
     // The shaders can be reused or destroyed after construction.
-    GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader);
+    GLProgram(const GLShader& vertex_shader, const GLShader& fragment_shader);
     ~GLProgram();
 
     GLProgram(const GLProgram&) = delete;

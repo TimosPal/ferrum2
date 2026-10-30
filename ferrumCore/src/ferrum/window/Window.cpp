@@ -6,22 +6,22 @@
 namespace ferrum::window {
 
 void Window::NotifyRefresh() noexcept {
-    if (!refreshCallback_) {
+    if (!refresh_callback_) {
         return;
     }
 
     try {
-        refreshCallback_();
+        refresh_callback_();
     } catch (...) {
-        if (!refreshException_) {
-            refreshException_ = std::current_exception();
+        if (!refresh_exception_) {
+            refresh_exception_ = std::current_exception();
         }
     }
 }
 
 void Window::RethrowRefreshException() {
-    if (refreshException_) {
-        auto exception = std::exchange(refreshException_, nullptr);
+    if (refresh_exception_) {
+        auto exception = std::exchange(refresh_exception_, nullptr);
         std::rethrow_exception(exception);
     }
 }

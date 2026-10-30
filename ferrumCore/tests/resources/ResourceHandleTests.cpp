@@ -47,20 +47,20 @@ TEST(ResourceHandle, CopyAndMoveConstructionMaintainReferenceCounts) {
 }
 
 TEST(ResourceHandle, AssignmentReleasesPreviousEntry) {
-    ResourceEntry firstEntry{.resource = std::make_unique<TextResource>("first")};
-    ResourceEntry secondEntry{.resource = std::make_unique<TextResource>("second")};
-    ResourceHandle<TextResource> first(&firstEntry);
-    ResourceHandle<TextResource> second(&secondEntry);
+    ResourceEntry first_entry{.resource = std::make_unique<TextResource>("first")};
+    ResourceEntry second_entry{.resource = std::make_unique<TextResource>("second")};
+    ResourceHandle<TextResource> first(&first_entry);
+    ResourceHandle<TextResource> second(&second_entry);
     second = first;
-    EXPECT_EQ(secondEntry.active_references, 0);
-    EXPECT_FALSE(secondEntry.HasResource());
-    EXPECT_EQ(firstEntry.active_references, 2);
+    EXPECT_EQ(second_entry.active_references, 0);
+    EXPECT_FALSE(second_entry.HasResource());
+    EXPECT_EQ(first_entry.active_references, 2);
     EXPECT_EQ(second.GetResource(), first.GetResource());
 
     ResourceHandle<TextResource> destination(nullptr);
     destination = std::move(second);
     EXPECT_FALSE(second.IsValid());
-    EXPECT_EQ(firstEntry.active_references, 2);
+    EXPECT_EQ(first_entry.active_references, 2);
     EXPECT_EQ(destination.GetResource(), first.GetResource());
 }
 

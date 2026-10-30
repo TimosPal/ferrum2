@@ -25,9 +25,9 @@ public:
     virtual void SetDesc(WindowDesc desc) { desc_ = std::move(desc); }
 
     ferrum::graphics::WindowGraphicsBinding* GetGraphicsBinding() noexcept {
-        return graphicsBinding_.get();
+        return graphics_binding_.get();
     }
-    void SetRefreshCallback(RefreshCallback callback) { refreshCallback_ = std::move(callback); }
+    void SetRefreshCallback(RefreshCallback callback) { refresh_callback_ = std::move(callback); }
     virtual void PollEvents() = 0;
     virtual bool ShouldClose() const = 0;
 
@@ -39,12 +39,12 @@ protected:
     void NotifyRefresh() noexcept;
     void RethrowRefreshException();
 
-    std::unique_ptr<ferrum::graphics::WindowGraphicsBinding> graphicsBinding_;
+    std::unique_ptr<ferrum::graphics::WindowGraphicsBinding> graphics_binding_;
     WindowDesc desc_;
 
 private:
-    RefreshCallback refreshCallback_;
-    std::exception_ptr refreshException_;
+    RefreshCallback refresh_callback_;
+    std::exception_ptr refresh_exception_;
 };
 
 }  // namespace ferrum::window

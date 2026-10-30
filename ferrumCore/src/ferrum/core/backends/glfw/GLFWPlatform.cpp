@@ -12,7 +12,7 @@ namespace ferrum::core::glfw {
 
 namespace {
 
-GLFWPlatform* activePlatform = nullptr;
+GLFWPlatform* active_platform = nullptr;
 
 void ErrorCallback(int error, const char* description) {
     FE_ERROR("GLFW Error ({}): {}", error, description);
@@ -21,17 +21,17 @@ void ErrorCallback(int error, const char* description) {
 }  // namespace
 
 GLFWPlatform::GLFWPlatform() {
-    FE_THROW_IF(activePlatform != nullptr, "A GLFW platform is already active");
+    FE_THROW_IF(active_platform != nullptr, "A GLFW platform is already active");
     glfwSetErrorCallback(ErrorCallback);
-    const int glfwInitResult = glfwInit();
-    FE_THROW_IF(glfwInitResult != GLFW_TRUE, "Failed to initialize GLFW");
-    activePlatform = this;
+    const int glfw_init_result = glfwInit();
+    FE_THROW_IF(glfw_init_result != GLFW_TRUE, "Failed to initialize GLFW");
+    active_platform = this;
 }
 
 GLFWPlatform::~GLFWPlatform() {
-    if (activePlatform == this) {
+    if (active_platform == this) {
         glfwTerminate();
-        activePlatform = nullptr;
+        active_platform = nullptr;
     }
 }
 

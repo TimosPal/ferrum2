@@ -34,13 +34,14 @@ public:
         int components;
         std::size_t size;
         std::size_t offset;
-        bool isInteger;
+        bool is_integer;
     };
 
     LayoutDescriptor(std::initializer_list<Attribute> attributes);
 
     std::span<const AttributeMetadata> Metadata() const noexcept { return metadata_; }
     std::size_t Stride() const noexcept { return stride_; }
+    bool IsValid() const noexcept { return !metadata_.empty(); }
 
 private:
     void AddAttribute(const Attribute& attribute);

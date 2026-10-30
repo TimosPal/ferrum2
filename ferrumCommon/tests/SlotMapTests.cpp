@@ -32,17 +32,17 @@ TEST(SlotMap, RejectsInvalidAndOutOfBoundsKeys) {
 
 TEST(SlotMap, ReusesSlotsWithoutRevivingStaleKeys) {
     SlotMap<int> map;
-    auto oldKey = map.Create(42);
-    EXPECT_TRUE(map.Destroy(oldKey));
-    EXPECT_FALSE(map.Destroy(oldKey));
+    auto old_key = map.Create(42);
+    EXPECT_TRUE(map.Destroy(old_key));
+    EXPECT_FALSE(map.Destroy(old_key));
     EXPECT_EQ(map.Size(), 0);
 
-    auto newKey = map.Create(7);
-    EXPECT_EQ(newKey.index, oldKey.index);
-    EXPECT_NE(newKey.generation, oldKey.generation);
-    EXPECT_EQ(map.Get(oldKey), nullptr);
-    ASSERT_NE(map.Get(newKey), nullptr);
-    EXPECT_EQ(*map.Get(newKey), 7);
+    auto new_key = map.Create(7);
+    EXPECT_EQ(new_key.index, old_key.index);
+    EXPECT_NE(new_key.generation, old_key.generation);
+    EXPECT_EQ(map.Get(old_key), nullptr);
+    ASSERT_NE(map.Get(new_key), nullptr);
+    EXPECT_EQ(*map.Get(new_key), 7);
 }
 
 TEST(SlotMap, SupportsMoveOnlyValuesAndDestroysThem) {

@@ -21,22 +21,22 @@ void CheckProgramLinking(GLuint id) {
 
 }  // namespace
 
-GLProgram::GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader) {
-    detail::RequireValid(vertexShader.IsValid(), "create OpenGL program", "vertex shader");
-    detail::RequireValid(fragmentShader.IsValid(), "create OpenGL program", "fragment shader");
-    FE_THROW_IF(vertexShader.GetType() != GLShader::Type::Vertex ||
-                    fragmentShader.GetType() != GLShader::Type::Fragment,
+GLProgram::GLProgram(const GLShader& vertex_shader, const GLShader& fragment_shader) {
+    detail::RequireValid(vertex_shader.IsValid(), "create OpenGL program", "vertex shader");
+    detail::RequireValid(fragment_shader.IsValid(), "create OpenGL program", "fragment shader");
+    FE_THROW_IF(vertex_shader.GetType() != GLShader::Type::Vertex ||
+                    fragment_shader.GetType() != GLShader::Type::Fragment,
                 "OpenGL program requires a vertex shader followed by a fragment shader");
 
     try {
         FE_GL(id_ = glCreateProgram());
         FE_THROW_IF(!IsValid(), "Failed to create OpenGL program");
-        FE_GL(glAttachShader(id_, vertexShader.Id()));
-        FE_GL(glAttachShader(id_, fragmentShader.Id()));
+        FE_GL(glAttachShader(id_, vertex_shader.Id()));
+        FE_GL(glAttachShader(id_, fragment_shader.Id()));
         FE_GL(glLinkProgram(id_));
         CheckProgramLinking(id_);
-        FE_GL(glDetachShader(id_, vertexShader.Id()));
-        FE_GL(glDetachShader(id_, fragmentShader.Id()));
+        FE_GL(glDetachShader(id_, vertex_shader.Id()));
+        FE_GL(glDetachShader(id_, fragment_shader.Id()));
     } catch (...) {
         if (id_ != 0) {
             glDeleteProgram(id_);

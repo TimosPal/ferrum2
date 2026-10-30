@@ -26,19 +26,19 @@
 
 namespace ferrum::renderer::opengl::detail {
 
-inline void RequireValid(bool isValid, std::string_view operation, std::string_view object) {
-    FE_THROW_IF(!isValid, "Cannot {}: {} has invalid ID (0)", operation, object);
+inline void RequireValid(bool is_valid, std::string_view operation, std::string_view object) {
+    FE_THROW_IF(!is_valid, "Cannot {}: {} has invalid ID (0)", operation, object);
 }
 
 template <typename GetParameter, typename GetLog>
-std::string GetInfoLog(GLuint id, GetParameter getParameter, GetLog getLog) {
+std::string GetInfoLog(GLuint id, GetParameter get_parameter, GetLog get_log) {
     GLint length = 0;
-    FE_GL(getParameter(id, GL_INFO_LOG_LENGTH, &length));
+    FE_GL(get_parameter(id, GL_INFO_LOG_LENGTH, &length));
     std::string log;
     if (length > 0) {
         log.resize(static_cast<std::size_t>(length));
         GLsizei written = 0;
-        FE_GL(getLog(id, length, &written, log.data()));
+        FE_GL(get_log(id, length, &written, log.data()));
         log.resize(static_cast<std::size_t>(written));
     }
     return log.empty() ? "driver returned no info log" : log;

@@ -18,7 +18,7 @@ public:
 
     bool IsValid() const noexcept { return id_ != 0; }
     void SetVertexBuffer(const GLBuffer& buffer, const LayoutDescriptor& layout,
-                         unsigned int bindingIndex = 0);
+                         unsigned int binding_index = 0);
     void SetIndexBuffer(const GLBuffer& buffer);
     void Bind() const;
     unsigned int Id() const noexcept { return id_; }

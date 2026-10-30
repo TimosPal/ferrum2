@@ -10,7 +10,7 @@
 namespace ferrum::renderer::opengl {
 namespace {
 
-std::once_flag gladInitialization;
+std::once_flag glad_initialization;
 
 GLADapiproc LoadOpenGLProcedure(void* binding, const char* name) {
     return static_cast<graphics::OpenGLWindowBinding*>(binding)->GetProcAddress(name);
@@ -20,7 +20,7 @@ GLADapiproc LoadOpenGLProcedure(void* binding, const char* name) {
 
 GLRenderer::GLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(binding) {
     binding_.MakeCurrent();
-    std::call_once(gladInitialization, [&] {
+    std::call_once(glad_initialization, [&] {
         FE_THROW_IF(!gladLoadGLUserPtr(LoadOpenGLProcedure, &binding_),
                     "Failed to initialize GLAD");
     });
@@ -28,8 +28,8 @@ GLRenderer::GLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(bindin
 
 void GLRenderer::Clear(const graphics::Color& color) {
     binding_.MakeCurrent();
-    const auto framebufferSize = binding_.GetFramebufferSize();
-    FE_GL(glViewport(0, 0, framebufferSize.x, framebufferSize.y));
+    const auto framebuffer_size = binding_.GetFramebufferSize();
+    FE_GL(glViewport(0, 0, framebuffer_size.x, framebuffer_size.y));
     FE_GL(glClearColor(color.r, color.g, color.b, color.a));
     FE_GL(glClear(GL_COLOR_BUFFER_BIT));
 }

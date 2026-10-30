@@ -64,10 +64,10 @@ GLFWWindow::GLFWWindow(const WindowDesc& data, graphics::GraphicsAPI api) : wind
 
     glfwSetWindowUserPointer(window_.get(), this);
     glfwSetWindowRefreshCallback(window_.get(), RefreshCallback);
-    graphicsBinding_ = CreateGraphicsBinding(api, window_.get(), desc_.vsync);
+    graphics_binding_ = CreateGraphicsBinding(api, window_.get(), desc_.vsync);
 }
 
-GLFWWindow::~GLFWWindow() { graphicsBinding_.reset(); }
+GLFWWindow::~GLFWWindow() { graphics_binding_.reset(); }
 
 void GLFWWindow::RefreshCallback(GLFWwindow* window) {
     auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));

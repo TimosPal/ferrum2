@@ -26,7 +26,7 @@ void LayoutDescriptor::AddAttribute(const Attribute& attribute) {
                 attribute.location);
 
     AttributeMetadata metadata{
-        .attribute = attribute, .components = 0, .size = 0, .offset = stride_, .isInteger = false};
+        .attribute = attribute, .components = 0, .size = 0, .offset = stride_, .is_integer = false};
     switch (attribute.type) {
         case AttributeType::Float:
             metadata.components = 1;
@@ -47,42 +47,42 @@ void LayoutDescriptor::AddAttribute(const Attribute& attribute) {
         case AttributeType::Int:
             metadata.components = 1;
             metadata.size = sizeof(std::int32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::IVec2:
             metadata.components = 2;
             metadata.size = 2 * sizeof(std::int32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::IVec3:
             metadata.components = 3;
             metadata.size = 3 * sizeof(std::int32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::IVec4:
             metadata.components = 4;
             metadata.size = 4 * sizeof(std::int32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::UInt:
             metadata.components = 1;
             metadata.size = sizeof(std::uint32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::UVec2:
             metadata.components = 2;
             metadata.size = 2 * sizeof(std::uint32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::UVec3:
             metadata.components = 3;
             metadata.size = 3 * sizeof(std::uint32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         case AttributeType::UVec4:
             metadata.components = 4;
             metadata.size = 4 * sizeof(std::uint32_t);
-            metadata.isInteger = true;
+            metadata.is_integer = true;
             break;
         default:
             FE_THROW("Unsupported vertex layout attribute type");

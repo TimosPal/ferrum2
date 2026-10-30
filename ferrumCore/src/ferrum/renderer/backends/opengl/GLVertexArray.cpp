@@ -29,20 +29,20 @@ GLenum GetGLAttributeType(LayoutDescriptor::AttributeType type) {
     FE_THROW("Unsupported OpenGL vertex attribute type");
 }
 
-void ConfigureVertexAttribute(GLuint vertexArrayId,
+void ConfigureVertexAttribute(GLuint vertex_array_id,
                               const LayoutDescriptor::AttributeMetadata& metadata,
-                              GLuint bindingIndex) {
+                              GLuint binding_index) {
     const GLenum type = GetGLAttributeType(metadata.attribute.type);
     const auto offset = static_cast<GLuint>(metadata.offset);
-    if (metadata.isInteger) {
-        FE_GL(glVertexArrayAttribIFormat(vertexArrayId, metadata.attribute.location,
+    if (metadata.is_integer) {
+        FE_GL(glVertexArrayAttribIFormat(vertex_array_id, metadata.attribute.location,
                                          metadata.components, type, offset));
     } else {
-        FE_GL(glVertexArrayAttribFormat(vertexArrayId, metadata.attribute.location,
+        FE_GL(glVertexArrayAttribFormat(vertex_array_id, metadata.attribute.location,
                                         metadata.components, type, GL_FALSE, offset));
     }
-    FE_GL(glVertexArrayAttribBinding(vertexArrayId, metadata.attribute.location, bindingIndex));
-    FE_GL(glEnableVertexArrayAttrib(vertexArrayId, metadata.attribute.location));
+    FE_GL(glVertexArrayAttribBinding(vertex_array_id, metadata.attribute.location, binding_index));
+    FE_GL(glEnableVertexArrayAttrib(vertex_array_id, metadata.attribute.location));
 }
 
 }  // namespace
@@ -71,16 +71,16 @@ GLVertexArray& GLVertexArray::operator=(GLVertexArray&& other) noexcept {
 }
 
 void GLVertexArray::SetVertexBuffer(const GLBuffer& buffer, const LayoutDescriptor& layout,
-                                    unsigned int bindingIndex) {
+                                    unsigned int binding_index) {
     detail::RequireValid(IsValid(), "configure vertex buffer", "OpenGL vertex array");
     detail::RequireValid(buffer.IsValid(), "configure vertex buffer", "OpenGL buffer");
     FE_THROW_IF(layout.Stride() > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()),
                 "OpenGL vertex stride is too large");
-    FE_GL(glVertexArrayVertexBuffer(id_, bindingIndex, buffer.Id(), 0,
+    FE_GL(glVertexArrayVertexBuffer(id_, binding_index, buffer.Id(), 0,
                                     static_cast<GLsizei>(layout.Stride())));
 
     for (const auto& metadata : layout.Metadata()) {
-        ConfigureVertexAttribute(id_, metadata, bindingIndex);
+        ConfigureVertexAttribute(id_, metadata, binding_index);
     }
 }
 
