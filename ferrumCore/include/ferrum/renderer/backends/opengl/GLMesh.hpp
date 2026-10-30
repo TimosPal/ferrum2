@@ -12,6 +12,7 @@ namespace ferrum::renderer::opengl {
 
 class GLMesh {
 public:
+    GLMesh(const GLMeshVertexBufferConfig& vertex_buffer, const GLMeshIndexBufferConfig& indices);
     GLMesh(std::span<const GLMeshVertexBufferConfig> vertex_buffers,
            const GLMeshIndexBufferConfig& indices);
     ~GLMesh() = default;

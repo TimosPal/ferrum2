@@ -6,8 +6,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "ferrum/renderer/LayoutDescriptor.hpp"
 #include "ferrum/renderer/backends/opengl/GLBuffer.hpp"
-#include "ferrum/renderer/backends/opengl/LayoutDescriptor.hpp"
 
 namespace ferrum::renderer::opengl {
 

@@ -1,12 +1,12 @@
-#include "ferrum/renderer/backends/opengl/LayoutDescriptor.hpp"
+#include "ferrum/renderer/LayoutDescriptor.hpp"
 
 #include <algorithm>
 #include <cstdint>
 #include <limits>
 
-#include "ferrum/renderer/backends/opengl/utils.hpp"
+#include "ferrum/common/exception.hpp"
 
-namespace ferrum::renderer::opengl {
+namespace ferrum::renderer {
 
 LayoutDescriptor::LayoutDescriptor(std::initializer_list<Attribute> attributes) {
     FE_THROW_IF(attributes.size() == 0, "Vertex layout requires at least one attribute");
@@ -94,4 +94,4 @@ void LayoutDescriptor::AddAttribute(const Attribute& attribute) {
     stride_ += metadata.size;
 }
 
-}  // namespace ferrum::renderer::opengl
+}  // namespace ferrum::renderer

@@ -123,6 +123,10 @@ GLMesh::GLMesh(std::span<const GLMeshVertexBufferConfig> vertex_buffers,
     BindAndUploadIndexBuffer(indices);
 }
 
+GLMesh::GLMesh(const GLMeshVertexBufferConfig& vertex_buffer,
+               const GLMeshIndexBufferConfig& indices)
+    : GLMesh(std::span<const GLMeshVertexBufferConfig>(&vertex_buffer, 1), indices) {}
+
 void GLMesh::Draw() { Draw(index_buffer_.index_count, 0); }
 
 void GLMesh::ValidateDrawRange(std::size_t index_count, std::size_t index_offset) const {

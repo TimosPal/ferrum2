@@ -5,7 +5,7 @@
 #include <span>
 #include <vector>
 
-namespace ferrum::renderer::opengl {
+namespace ferrum::renderer {
 
 class LayoutDescriptor {
 public:
@@ -50,4 +50,4 @@ private:
     std::size_t stride_ = 0;
 };
 
-}  // namespace ferrum::renderer::opengl
+}  // namespace ferrum::renderer
