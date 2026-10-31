@@ -41,6 +41,11 @@ GLRenderer::GLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(bindin
     });
 }
 
+void GLRenderer::BeginFrame(const renderer::CameraMatrices& camera_matrices) {
+    binding_.MakeCurrent();
+    camera_matrices_ = &camera_matrices;
+}
+
 void GLRenderer::Clear(const graphics::Color& color) {
     binding_.MakeCurrent();
     const auto framebuffer_size = binding_.GetFramebufferSize();
@@ -79,12 +84,15 @@ void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh,
 void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
                       std::size_t index_offset, renderer::PrimitiveTopology topology) {
     binding_.MakeCurrent();
+    FE_THROW_IF(camera_matrices_ == nullptr, "Cannot draw without an active camera frame");
+    material.GetProgram().SetParameter("viewProjection", camera_matrices_->view_projection);
     material.Apply();
     DrawProgram(material.GetProgram(), mesh, index_count, index_offset, topology);
 }
 
-void GLRenderer::Present() {
+void GLRenderer::EndFrame() {
     binding_.MakeCurrent();
+    camera_matrices_ = nullptr;
     binding_.SwapBuffers();
 }
 

@@ -12,6 +12,7 @@ class Material {
 public:
     explicit Material(ProgramModule& program) : program_(program) {}
 
+    ProgramModule& GetProgram() noexcept { return program_; }
     const ProgramModule& GetProgram() const noexcept { return program_; }
 
     void SetParameter(std::string_view name, ProgramParameterValue value);

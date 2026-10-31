@@ -14,6 +14,7 @@ public:
     GLRenderer& operator=(GLRenderer&&) = delete;
     ~GLRenderer() override = default;
 
+    void BeginFrame(const renderer::CameraMatrices& camera_matrices) override;
     void Clear(const graphics::Color& color) override;
     void Draw(
         renderer::Material& material, renderer::Mesh& mesh,
@@ -22,7 +23,7 @@ public:
         renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
         std::size_t index_offset,
         renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
-    void Present() override;
+    void EndFrame() override;
 
 private:
     void DrawProgram(const renderer::ProgramModule& program, renderer::Mesh& mesh,
@@ -32,6 +33,7 @@ private:
                      renderer::PrimitiveTopology topology);
 
     graphics::OpenGLWindowBinding& binding_;
+    const renderer::CameraMatrices* camera_matrices_ = nullptr;
 };
 
 }  // namespace ferrum::renderer::opengl

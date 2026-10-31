@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "ferrum/renderer/CameraMatrices.hpp"
+
 namespace ferrum::renderer {
 
 class Camera2D {
@@ -16,9 +18,10 @@ public:
     void SetZoom(float zoom) noexcept;
     void SetAspectRatio(float aspect_ratio) noexcept;
 
-    glm::mat4 GetView() const noexcept;
-    glm::mat4 GetProjection() const noexcept;
-    glm::mat4 GetViewProjection() const noexcept;
+    const glm::mat4& GetView() const noexcept;
+    const glm::mat4& GetProjection() const noexcept;
+    const glm::mat4& GetViewProjection() const noexcept;
+    const CameraMatrices& GetMatrices() const noexcept;
 
 private:
     void UpdateMatrices() const noexcept;
@@ -26,9 +29,7 @@ private:
     glm::vec2 position_{0.0F};
     float zoom_ = 1.0F;
     float aspect_ratio_ = 1.0F;
-    mutable glm::mat4 view_{1.0F};
-    mutable glm::mat4 projection_{1.0F};
-    mutable glm::mat4 view_projection_{1.0F};
+    mutable CameraMatrices matrices_;
     mutable bool view_projection_dirty_ = true;
 };
 

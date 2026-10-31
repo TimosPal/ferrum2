@@ -67,13 +67,12 @@ int main() {
     auto mesh_resource = device->CreateMesh(mesh_description);
     ferrum::renderer::Material material(*program_module);
     ferrum::renderer::Camera2D camera(800.0F / 600.0F);
-    material.SetParameter("viewProjection", camera.GetViewProjection());
-
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
+        renderer->BeginFrame(camera.GetMatrices());
         renderer->Clear(background_color);
         renderer->Draw(material, *mesh_resource);
-        renderer->Present();
+        renderer->EndFrame();
     };
     window->SetRefreshCallback(render_frame);
 

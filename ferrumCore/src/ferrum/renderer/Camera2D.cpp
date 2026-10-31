@@ -35,25 +35,31 @@ void Camera2D::UpdateMatrices() const noexcept {
 
     const float half_height = zoom_;
     const float half_width = half_height * aspect_ratio_;
-    projection_ = glm::ortho(-half_width, half_width, -half_height, half_height, -1.0F, 1.0F);
-    view_ = glm::translate(glm::mat4(1.0F), glm::vec3(-position_.x, -position_.y, 0.0F));
-    view_projection_ = projection_ * view_;
+    matrices_.projection =
+        glm::ortho(-half_width, half_width, -half_height, half_height, -1.0F, 1.0F);
+    matrices_.view = glm::translate(glm::mat4(1.0F), glm::vec3(-position_.x, -position_.y, 0.0F));
+    matrices_.view_projection = matrices_.projection * matrices_.view;
     view_projection_dirty_ = false;
 }
 
-glm::mat4 Camera2D::GetView() const noexcept {
+const glm::mat4& Camera2D::GetView() const noexcept {
     UpdateMatrices();
-    return view_;
+    return matrices_.view;
 }
 
-glm::mat4 Camera2D::GetProjection() const noexcept {
+const glm::mat4& Camera2D::GetProjection() const noexcept {
     UpdateMatrices();
-    return projection_;
+    return matrices_.projection;
 }
 
-glm::mat4 Camera2D::GetViewProjection() const noexcept {
+const glm::mat4& Camera2D::GetViewProjection() const noexcept {
     UpdateMatrices();
-    return view_projection_;
+    return matrices_.view_projection;
+}
+
+const CameraMatrices& Camera2D::GetMatrices() const noexcept {
+    UpdateMatrices();
+    return matrices_;
 }
 
 }  // namespace ferrum::renderer
