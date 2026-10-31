@@ -9,10 +9,10 @@ namespace ferrum::renderer::primitives {
 
 struct Quad {
     inline static constexpr std::array<vertices::Vertex2D, 4> vertices{{
-        {.x = -0.5F, .y = -0.5F},
-        {.x = 0.5F, .y = -0.5F},
-        {.x = 0.5F, .y = 0.5F},
-        {.x = -0.5F, .y = 0.5F},
+        {.x = -0.5F, .y = -0.5F, .uv = {0.0F, 0.0F}},
+        {.x = 0.5F, .y = -0.5F, .uv = {1.0F, 0.0F}},
+        {.x = 0.5F, .y = 0.5F, .uv = {1.0F, 1.0F}},
+        {.x = -0.5F, .y = 0.5F, .uv = {0.0F, 1.0F}},
     }};
     inline static constexpr std::array<std::uint16_t, 6> indices{0, 1, 2, 2, 3, 0};
 };

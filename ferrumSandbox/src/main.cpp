@@ -14,6 +14,7 @@
 #include "ferrum/renderer/ShaderModule.hpp"
 #include "ferrum/renderer/primitives/Quad.hpp"
 #include "ferrum/resources/ResourceManager.hpp"
+#include "ferrum/resources/types/ImageResource.hpp"
 
 int main() {
     using ferrum::core::Platform;
@@ -24,6 +25,7 @@ int main() {
     using ferrum::renderer::primitives::Quad;
     using ferrum::renderer::vertices::Vertex2D;
     using ferrum::resources::ResourceManager;
+    using ferrum::resources::types::ImageResource;
     using ferrum::resources::types::TextResource;
 
     constexpr auto graphics_api = GraphicsAPI::OpenGL;
@@ -65,7 +67,14 @@ int main() {
     };
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
+
+    ImageResource image(1, 1, 4, {255, 255, 255, 255});
+    auto texture = device->CreateTexture(
+        {.width = image.GetWidth(), .height = image.GetHeight(), .channels = image.GetChannels()});
+    texture->Upload(image);
+
     ferrum::renderer::Material material(*program_module);
+    material.SetTexture("spriteTexture", *texture);
     ferrum::renderer::Camera2D camera;
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {

@@ -2,6 +2,11 @@
 
 layout(location = 0) out vec4 fragmentColor;
 
+in vec2 fragmentUv;
+in vec4 fragmentTint;
+
+uniform sampler2D spriteTexture;
+
 void main() {
-    fragmentColor = vec4(0.2, 0.75, 0.95, 1.0);
+    fragmentColor = texture(spriteTexture, fragmentUv) * fragmentTint;
 }

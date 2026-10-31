@@ -20,7 +20,7 @@ public:
     int MipmapLevels() const noexcept override { return storage_.mipmap_levels; }
     void Upload(const resources::types::ImageResource& image) override;
     void UploadRegion(const resources::types::ImageResource& image, glm::ivec2 offset) override;
-    void Bind(unsigned int texture_unit) const;
+    void Bind(unsigned int texture_unit) const override;
 
 private:
     void InitializeStorage(TextureDesc description, TextureOptions options);

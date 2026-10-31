@@ -50,6 +50,7 @@ public:
     virtual int Width() const noexcept = 0;
     virtual int Height() const noexcept = 0;
     virtual int MipmapLevels() const noexcept = 0;
+    virtual void Bind(unsigned int texture_unit) const = 0;
     virtual void Upload(const resources::types::ImageResource& image) = 0;
     virtual void UploadRegion(const resources::types::ImageResource& image, glm::ivec2 offset) = 0;
 
