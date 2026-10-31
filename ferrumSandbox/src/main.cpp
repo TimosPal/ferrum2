@@ -5,6 +5,7 @@
 #include "ferrum/core/Platform.hpp"
 #include "ferrum/graphics/Color.hpp"
 #include "ferrum/graphics/GraphicsDevice.hpp"
+#include "ferrum/renderer/Camera2D.hpp"
 #include "ferrum/renderer/Material.hpp"
 #include "ferrum/renderer/Mesh.hpp"
 #include "ferrum/renderer/MeshConfig.hpp"
@@ -65,6 +66,8 @@ int main() {
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
     ferrum::renderer::Material material(*program_module);
+    ferrum::renderer::Camera2D camera(800.0F / 600.0F);
+    material.SetParameter("viewProjection", camera.GetViewProjection());
 
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
