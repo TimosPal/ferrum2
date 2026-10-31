@@ -5,6 +5,7 @@
 #include "ferrum/renderer/Mesh.hpp"
 #include "ferrum/renderer/ProgramModule.hpp"
 #include "ferrum/renderer/ShaderModule.hpp"
+#include "ferrum/renderer/Texture.hpp"
 
 namespace ferrum::graphics {
 
@@ -34,6 +35,8 @@ public:
     virtual std::unique_ptr<renderer::ProgramModule> CreateProgramModule(
         const renderer::ProgramModuleDesc& description) = 0;
     virtual std::unique_ptr<renderer::Mesh> CreateMesh(const renderer::MeshDesc& description) = 0;
+    virtual std::unique_ptr<renderer::Texture> CreateTexture(
+        const renderer::TextureDesc& description, renderer::TextureOptions options = {}) = 0;
 
 protected:
     GraphicsDevice() = default;

@@ -21,6 +21,8 @@ public:
     std::unique_ptr<renderer::ProgramModule> CreateProgramModule(
         const renderer::ProgramModuleDesc& description) override;
     std::unique_ptr<renderer::Mesh> CreateMesh(const renderer::MeshDesc& description) override;
+    std::unique_ptr<renderer::Texture> CreateTexture(
+        const renderer::TextureDesc& description, renderer::TextureOptions options = {}) override;
 
 private:
     graphics::OpenGLWindowBinding& binding_;

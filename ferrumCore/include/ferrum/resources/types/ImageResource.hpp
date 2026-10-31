@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -8,20 +9,31 @@
 
 namespace ferrum::resources::types {
 
+enum class ImageDataType {
+    UnsignedByte,
+};
+
 class ImageResource : public ferrum::resources::Resource {
 public:
-    ImageResource(int width, int height, int channels, std::vector<std::uint8_t> pixels)
-        : width_(width), height_(height), channels_(channels), pixels_(std::move(pixels)) {}
+    ImageResource(int width, int height, int channels, std::vector<std::uint8_t> pixels,
+                  ImageDataType data_type = ImageDataType::UnsignedByte)
+        : width_(width),
+          height_(height),
+          channels_(channels),
+          data_type_(data_type),
+          pixels_(std::move(pixels)) {}
 
     int GetWidth() const { return width_; }
     int GetHeight() const { return height_; }
     int GetChannels() const { return channels_; }
-    const std::vector<std::uint8_t>& GetPixels() const { return pixels_; }
+    ImageDataType GetDataType() const noexcept { return data_type_; }
+    std::span<const std::uint8_t> GetPixels() const noexcept { return pixels_; }
 
 private:
     int width_;
     int height_;
     int channels_;
+    ImageDataType data_type_;
     std::vector<std::uint8_t> pixels_;
 };
 

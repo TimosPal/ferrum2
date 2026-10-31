@@ -8,6 +8,7 @@
 #include "ferrum/renderer/backends/opengl/GLProgram.hpp"
 #include "ferrum/renderer/backends/opengl/GLRenderer.hpp"
 #include "ferrum/renderer/backends/opengl/GLShader.hpp"
+#include "ferrum/renderer/backends/opengl/GLTexture.hpp"
 
 namespace ferrum::renderer::opengl {
 
@@ -56,6 +57,11 @@ std::unique_ptr<renderer::Mesh> GLGraphicsDevice::CreateMesh(
     }
     const GLMeshIndexBufferConfig index_buffer(description.index_buffer, usage);
     return std::make_unique<GLMesh>(vertex_buffers, index_buffer);
+}
+
+std::unique_ptr<renderer::Texture> GLGraphicsDevice::CreateTexture(
+    const renderer::TextureDesc& description, renderer::TextureOptions options) {
+    return std::make_unique<GLTexture>(description, options);
 }
 
 }  // namespace ferrum::renderer::opengl

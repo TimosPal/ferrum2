@@ -16,6 +16,7 @@ target_sources(ferrumCore PRIVATE
     src/ferrum/renderer/backends/opengl/GLRenderer.cpp
     src/ferrum/renderer/backends/opengl/GLGraphicsDevice.cpp
     src/ferrum/renderer/backends/opengl/GLShader.cpp
+    src/ferrum/renderer/backends/opengl/GLTexture.cpp
     src/ferrum/renderer/backends/opengl/GLVertexArray.cpp
     src/ferrum/window/Window.cpp
 )
