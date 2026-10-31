@@ -24,6 +24,8 @@ public:
     GLMesh(GLMesh&& other) noexcept = default;
     GLMesh& operator=(GLMesh&& other) noexcept = default;
 
+    std::size_t IndexCount() const noexcept override { return index_buffer_.index_count; }
+
     // Resizing discards contents and resets the corresponding active count.
     void ResizeVertexBuffer(unsigned int buffer_index, std::size_t new_vertex_capacity);
     void ResizeIndexBuffer(std::size_t new_index_capacity);

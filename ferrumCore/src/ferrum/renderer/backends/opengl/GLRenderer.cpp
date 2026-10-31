@@ -49,16 +49,14 @@ void GLRenderer::Clear(const graphics::Color& color) {
     FE_GL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void GLRenderer::Draw(const renderer::ProgramModule& program, renderer::Mesh& mesh,
-                      renderer::PrimitiveTopology topology) {
-    auto* open_gl_mesh = dynamic_cast<GLMesh*>(&mesh);
-    FE_THROW_IF(open_gl_mesh == nullptr, "OpenGL renderer requires an OpenGL mesh");
-    Draw(program, mesh, open_gl_mesh->index_buffer_.index_count, 0, topology);
+void GLRenderer::DrawProgram(const renderer::ProgramModule& program, renderer::Mesh& mesh,
+                             renderer::PrimitiveTopology topology) {
+    DrawProgram(program, mesh, mesh.IndexCount(), 0, topology);
 }
 
-void GLRenderer::Draw(const renderer::ProgramModule& program, renderer::Mesh& mesh,
-                      std::size_t index_count, std::size_t index_offset,
-                      renderer::PrimitiveTopology topology) {
+void GLRenderer::DrawProgram(const renderer::ProgramModule& program, renderer::Mesh& mesh,
+                             std::size_t index_count, std::size_t index_offset,
+                             renderer::PrimitiveTopology topology) {
     binding_.MakeCurrent();
     const auto* open_gl_program = dynamic_cast<const GLProgram*>(&program);
     auto* open_gl_mesh = dynamic_cast<GLMesh*>(&mesh);
@@ -71,6 +69,18 @@ void GLRenderer::Draw(const renderer::ProgramModule& program, renderer::Mesh& me
         ToGLPrimitiveTopology(topology), static_cast<GLsizei>(index_count),
         open_gl_mesh->index_buffer_.index_type,
         reinterpret_cast<void*>(index_offset * open_gl_mesh->index_buffer_.index_size_bytes)));
+}
+
+void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh,
+                      renderer::PrimitiveTopology topology) {
+    Draw(material, mesh, mesh.IndexCount(), 0, topology);
+}
+
+void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
+                      std::size_t index_offset, renderer::PrimitiveTopology topology) {
+    binding_.MakeCurrent();
+    material.Apply();
+    DrawProgram(material.GetProgram(), mesh, index_count, index_offset, topology);
 }
 
 void GLRenderer::Present() {

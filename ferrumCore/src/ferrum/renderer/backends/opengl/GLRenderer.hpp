@@ -16,15 +16,21 @@ public:
 
     void Clear(const graphics::Color& color) override;
     void Draw(
-        const renderer::ProgramModule& program, renderer::Mesh& mesh,
+        renderer::Material& material, renderer::Mesh& mesh,
         renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
     void Draw(
-        const renderer::ProgramModule& program, renderer::Mesh& mesh, std::size_t index_count,
+        renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
         std::size_t index_offset,
         renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
     void Present() override;
 
 private:
+    void DrawProgram(const renderer::ProgramModule& program, renderer::Mesh& mesh,
+                     renderer::PrimitiveTopology topology);
+    void DrawProgram(const renderer::ProgramModule& program, renderer::Mesh& mesh,
+                     std::size_t index_count, std::size_t index_offset,
+                     renderer::PrimitiveTopology topology);
+
     graphics::OpenGLWindowBinding& binding_;
 };
 

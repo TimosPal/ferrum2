@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include "ferrum/graphics/Color.hpp"
+#include "ferrum/renderer/Material.hpp"
 #include "ferrum/renderer/Mesh.hpp"
 #include "ferrum/renderer/ProgramModule.hpp"
 
@@ -17,9 +18,9 @@ public:
     Renderer& operator=(Renderer&&) = delete;
 
     virtual void Clear(const graphics::Color& color) = 0;
-    virtual void Draw(const ProgramModule& program, Mesh& mesh,
+    virtual void Draw(Material& material, Mesh& mesh,
                       PrimitiveTopology topology = PrimitiveTopology::Triangles) = 0;
-    virtual void Draw(const ProgramModule& program, Mesh& mesh, std::size_t index_count,
+    virtual void Draw(Material& material, Mesh& mesh, std::size_t index_count,
                       std::size_t index_offset,
                       PrimitiveTopology topology = PrimitiveTopology::Triangles) = 0;
     virtual void Present() = 0;

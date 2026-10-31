@@ -40,6 +40,8 @@ public:
     Mesh(Mesh&&) noexcept = default;
     Mesh& operator=(Mesh&&) noexcept = default;
 
+    virtual std::size_t IndexCount() const noexcept = 0;
+
 protected:
     Mesh() = default;
 };

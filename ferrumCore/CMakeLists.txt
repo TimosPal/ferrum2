@@ -9,6 +9,7 @@ target_sources(ferrumCore PRIVATE
     src/ferrum/graphics/GraphicsDevice.cpp
     src/ferrum/renderer/backends/opengl/GLBuffer.cpp
     src/ferrum/renderer/backends/opengl/GLMesh.cpp
+    src/ferrum/renderer/Material.cpp
     src/ferrum/renderer/LayoutDescriptor.cpp
     src/ferrum/renderer/backends/opengl/GLProgram.cpp
     src/ferrum/renderer/backends/opengl/GLRenderer.cpp

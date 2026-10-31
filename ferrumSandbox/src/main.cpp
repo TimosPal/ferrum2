@@ -5,6 +5,7 @@
 #include "ferrum/core/Platform.hpp"
 #include "ferrum/graphics/Color.hpp"
 #include "ferrum/graphics/GraphicsDevice.hpp"
+#include "ferrum/renderer/Material.hpp"
 #include "ferrum/renderer/Mesh.hpp"
 #include "ferrum/renderer/MeshConfig.hpp"
 #include "ferrum/renderer/ProgramModule.hpp"
@@ -63,11 +64,12 @@ int main() {
     };
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
+    ferrum::renderer::Material material(*program_module);
 
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
         renderer->Clear(background_color);
-        renderer->Draw(*program_module, *mesh_resource);
+        renderer->Draw(material, *mesh_resource);
         renderer->Present();
     };
     window->SetRefreshCallback(render_frame);
