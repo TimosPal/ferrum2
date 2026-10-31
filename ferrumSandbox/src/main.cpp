@@ -3,6 +3,8 @@
 #include <span>
 
 #include "ferrum/core/Platform.hpp"
+#include "ferrum/graphics/Color.hpp"
+#include "ferrum/graphics/GraphicsDevice.hpp"
 #include "ferrum/renderer/Renderer.hpp"
 #include "ferrum/renderer/backends/opengl/GLMesh.hpp"
 #include "ferrum/renderer/backends/opengl/GLProgram.hpp"
@@ -14,7 +16,9 @@ int main() {
     using ferrum::core::Platform;
     using ferrum::graphics::Color;
     using ferrum::graphics::GraphicsAPI;
-    using ferrum::renderer::Renderer;
+    using ferrum::graphics::GraphicsDevice;
+    using ferrum::renderer::ProgramModuleDesc;
+    using ferrum::renderer::ShaderType;
     using ferrum::renderer::opengl::GLMesh;
     using ferrum::renderer::opengl::GLMeshIndexBufferConfig;
     using ferrum::renderer::opengl::GLMeshVertexBufferConfig;
@@ -29,7 +33,8 @@ int main() {
     auto platform = Platform::Create();
     auto window = platform->CreateWindow({.title = "Ferrum Window", .width = 800, .height = 600},
                                          graphics_api);
-    auto renderer = Renderer::Create(window->GetGraphicsBinding());
+    auto device = GraphicsDevice::Create(window->GetGraphicsBinding());
+    auto renderer = device->CreateRenderer();
 
     ResourceManager resources;
     const auto shader_directory =
@@ -38,12 +43,19 @@ int main() {
         resources.LoadResource<TextResource>(shader_directory / "quad.vert");
     auto fragment_shader_source =
         resources.LoadResource<TextResource>(shader_directory / "quad.frag");
-    GLShader vertex_shader(GLShader::Type::Vertex, vertex_shader_source.handle);
-    GLShader fragment_shader(GLShader::Type::Fragment, fragment_shader_source.handle);
-    GLProgram program(vertex_shader, fragment_shader);
+    GLShader vertex_shader(ShaderType::Vertex,
+                           vertex_shader_source.handle.GetResource()->GetText());
+    GLShader fragment_shader(ShaderType::Fragment,
+                             fragment_shader_source.handle.GetResource()->GetText());
+    const ProgramModuleDesc program_description{
+        .vertex_shader = vertex_shader,
+        .fragment_shader = fragment_shader,
+    };
+    GLProgram program(program_description);
 
     const GLMeshVertexBufferConfig vertex_buffer{
-        std::span<const Vertex2D>(Quad::vertices), Vertex2D::Layout(),
+        std::span<const Vertex2D>(Quad::vertices),
+        Vertex2D::Layout(),
     };
     const GLMeshIndexBufferConfig index_buffer{
         std::span<const std::uint16_t>(Quad::indices),

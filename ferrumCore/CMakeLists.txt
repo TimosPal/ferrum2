@@ -6,12 +6,13 @@ include(cmake/Dependencies.cmake)
 
 target_sources(ferrumCore PRIVATE
     src/ferrum/resources/loaders.cpp
-    src/ferrum/renderer/Renderer.cpp
+    src/ferrum/graphics/GraphicsDevice.cpp
     src/ferrum/renderer/backends/opengl/GLBuffer.cpp
     src/ferrum/renderer/backends/opengl/GLMesh.cpp
     src/ferrum/renderer/LayoutDescriptor.cpp
     src/ferrum/renderer/backends/opengl/GLProgram.cpp
     src/ferrum/renderer/backends/opengl/GLRenderer.cpp
+    src/ferrum/renderer/backends/opengl/GLGraphicsDevice.cpp
     src/ferrum/renderer/backends/opengl/GLShader.cpp
     src/ferrum/renderer/backends/opengl/GLVertexArray.cpp
     src/ferrum/window/Window.cpp
