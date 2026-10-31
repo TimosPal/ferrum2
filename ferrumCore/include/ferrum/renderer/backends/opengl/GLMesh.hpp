@@ -11,6 +11,8 @@
 
 namespace ferrum::renderer::opengl {
 
+class GLRenderer;
+
 class GLMesh final : public renderer::Mesh {
 public:
     GLMesh(const GLMeshVertexBufferConfig& vertex_buffer, const GLMeshIndexBufferConfig& indices);
@@ -21,11 +23,6 @@ public:
     GLMesh& operator=(const GLMesh&) = delete;
     GLMesh(GLMesh&& other) noexcept = default;
     GLMesh& operator=(GLMesh&& other) noexcept = default;
-
-    // Index values must reference initialized vertices in every binding.
-    void Draw(renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles);
-    void Draw(std::size_t index_count, std::size_t index_offset,
-              renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles);
 
     // Resizing discards contents and resets the corresponding active count.
     void ResizeVertexBuffer(unsigned int buffer_index, std::size_t new_vertex_capacity);
@@ -39,6 +36,8 @@ public:
     void SetIndexCount(std::size_t index_count);
 
 private:
+    friend class GLRenderer;
+
     struct VertexBufferInfo {
         LayoutDescriptor layout;
         GLBuffer buffer;

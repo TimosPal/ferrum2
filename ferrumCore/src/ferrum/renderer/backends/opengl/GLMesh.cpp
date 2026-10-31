@@ -53,19 +53,6 @@ std::size_t GetIndexSizeBytes(GLMeshIndexBufferConfig::Type type) {
     }
 }
 
-GLenum ToGLPrimitiveTopology(renderer::PrimitiveTopology topology) {
-    switch (topology) {
-        case renderer::PrimitiveTopology::Triangles:
-            return GL_TRIANGLES;
-        case renderer::PrimitiveTopology::Lines:
-            return GL_LINES;
-        case renderer::PrimitiveTopology::Points:
-            return GL_POINTS;
-        default:
-            FE_THROW("Unsupported primitive topology");
-    }
-}
-
 void ValidateIndexBufferConfig(const GLMeshIndexBufferConfig& indices) {
     const auto index_size = GetIndexSizeBytes(indices.GetIndexType());
     CheckByteSize(indices.IndexCapacity(), index_size);
@@ -140,10 +127,6 @@ GLMesh::GLMesh(const GLMeshVertexBufferConfig& vertex_buffer,
                const GLMeshIndexBufferConfig& indices)
     : GLMesh(std::span<const GLMeshVertexBufferConfig>(&vertex_buffer, 1), indices) {}
 
-void GLMesh::Draw(renderer::PrimitiveTopology topology) {
-    Draw(index_buffer_.index_count, 0, topology);
-}
-
 void GLMesh::ValidateDrawRange(std::size_t index_count, std::size_t index_offset) const {
     FE_THROW_IF(index_offset > index_buffer_.index_count ||
                     index_count > index_buffer_.index_count - index_offset,
@@ -153,15 +136,6 @@ void GLMesh::ValidateDrawRange(std::size_t index_count, std::size_t index_offset
     FE_THROW_IF(index_count != 0 && !vertex_buffers_.empty() && vertex_count_ == 0,
                 "Cannot draw vertex bindings with no active vertices");
     CheckByteSize(index_offset, index_buffer_.index_size_bytes);
-}
-
-void GLMesh::Draw(std::size_t index_count, std::size_t index_offset,
-                  renderer::PrimitiveTopology topology) {
-    ValidateDrawRange(index_count, index_offset);
-    vertex_array_.Bind();
-    FE_GL(glDrawElements(ToGLPrimitiveTopology(topology), static_cast<GLsizei>(index_count),
-                         index_buffer_.index_type,
-                         reinterpret_cast<void*>(index_offset * index_buffer_.index_size_bytes)));
 }
 
 void GLMesh::ResizeVertexBuffer(unsigned int buffer_index, std::size_t new_vertex_capacity) {

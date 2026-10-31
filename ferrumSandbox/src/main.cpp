@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <span>
 
-#include "ferrum/common/exception.hpp"
 #include "ferrum/core/Platform.hpp"
 #include "ferrum/graphics/Color.hpp"
 #include "ferrum/graphics/GraphicsDevice.hpp"
@@ -11,8 +10,6 @@
 #include "ferrum/renderer/ProgramModule.hpp"
 #include "ferrum/renderer/Renderer.hpp"
 #include "ferrum/renderer/ShaderModule.hpp"
-#include "ferrum/renderer/backends/opengl/GLMesh.hpp"
-#include "ferrum/renderer/backends/opengl/GLProgram.hpp"
 #include "ferrum/renderer/primitives/Quad.hpp"
 #include "ferrum/resources/ResourceManager.hpp"
 
@@ -22,8 +19,6 @@ int main() {
     using ferrum::graphics::GraphicsAPI;
     using ferrum::graphics::GraphicsDevice;
     using ferrum::renderer::ShaderType;
-    using ferrum::renderer::opengl::GLMesh;
-    using ferrum::renderer::opengl::GLProgram;
     using ferrum::renderer::primitives::Quad;
     using ferrum::renderer::vertices::Vertex2D;
     using ferrum::resources::ResourceManager;
@@ -58,8 +53,6 @@ int main() {
         .fragment_shader = *fragment_shader,
     };
     auto program_module = device->CreateProgramModule(program_description);
-    auto* program = dynamic_cast<GLProgram*>(program_module.get());
-    FE_THROW_IF(program == nullptr, "Graphics device created an unexpected program type");
 
     const ferrum::renderer::VertexBufferConfig vertex_buffer{
         std::span<const Vertex2D>(Quad::vertices),
@@ -70,14 +63,11 @@ int main() {
     };
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
-    auto* mesh = dynamic_cast<GLMesh*>(mesh_resource.get());
-    FE_THROW_IF(mesh == nullptr, "Graphics device created an unexpected mesh type");
 
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
         renderer->Clear(background_color);
-        program->Use();
-        mesh->Draw();
+        renderer->Draw(*program_module, *mesh_resource);
         renderer->Present();
     };
     window->SetRefreshCallback(render_frame);

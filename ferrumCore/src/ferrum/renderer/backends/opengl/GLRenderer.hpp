@@ -15,6 +15,13 @@ public:
     ~GLRenderer() override = default;
 
     void Clear(const graphics::Color& color) override;
+    void Draw(
+        const renderer::ProgramModule& program, renderer::Mesh& mesh,
+        renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
+    void Draw(
+        const renderer::ProgramModule& program, renderer::Mesh& mesh, std::size_t index_count,
+        std::size_t index_offset,
+        renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
     void Present() override;
 
 private:
