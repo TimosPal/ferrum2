@@ -20,6 +20,7 @@ public:
         const renderer::ShaderModuleDesc& description) override;
     std::unique_ptr<renderer::ProgramModule> CreateProgramModule(
         const renderer::ProgramModuleDesc& description) override;
+    std::unique_ptr<renderer::Mesh> CreateMesh(const renderer::MeshDesc& description) override;
 
 private:
     graphics::OpenGLWindowBinding& binding_;

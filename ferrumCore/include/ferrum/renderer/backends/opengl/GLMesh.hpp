@@ -4,26 +4,28 @@
 #include <span>
 #include <vector>
 
+#include "ferrum/renderer/Mesh.hpp"
 #include "ferrum/renderer/backends/opengl/GLBuffer.hpp"
 #include "ferrum/renderer/backends/opengl/GLMeshConfig.hpp"
 #include "ferrum/renderer/backends/opengl/GLVertexArray.hpp"
 
 namespace ferrum::renderer::opengl {
 
-class GLMesh {
+class GLMesh final : public renderer::Mesh {
 public:
     GLMesh(const GLMeshVertexBufferConfig& vertex_buffer, const GLMeshIndexBufferConfig& indices);
     GLMesh(std::span<const GLMeshVertexBufferConfig> vertex_buffers,
            const GLMeshIndexBufferConfig& indices);
-    ~GLMesh() = default;
+    ~GLMesh() override = default;
     GLMesh(const GLMesh&) = delete;
     GLMesh& operator=(const GLMesh&) = delete;
     GLMesh(GLMesh&& other) noexcept = default;
     GLMesh& operator=(GLMesh&& other) noexcept = default;
 
     // Index values must reference initialized vertices in every binding.
-    void Draw();
-    void Draw(std::size_t index_count, std::size_t index_offset);
+    void Draw(renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles);
+    void Draw(std::size_t index_count, std::size_t index_offset,
+              renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles);
 
     // Resizing discards contents and resets the corresponding active count.
     void ResizeVertexBuffer(unsigned int buffer_index, std::size_t new_vertex_capacity);

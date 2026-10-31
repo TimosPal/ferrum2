@@ -11,7 +11,7 @@ class GLProgram final : public renderer::ProgramModule {
 public:
     // Borrows compiled shaders for linking and detaches them before returning.
     // The shaders can be reused or destroyed after construction.
-    explicit GLProgram(const renderer::ProgramModuleDesc& description);
+    GLProgram(const GLShader& vertex_shader, const GLShader& fragment_shader);
     ~GLProgram() override;
 
     GLProgram(const GLProgram&) = delete;

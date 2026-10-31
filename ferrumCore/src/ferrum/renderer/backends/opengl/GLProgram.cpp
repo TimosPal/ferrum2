@@ -19,35 +19,26 @@ void CheckProgramLinking(GLuint id) {
              detail::GetInfoLog(id, glGetProgramiv, glGetProgramInfoLog));
 }
 
-struct OpenGLShaderPair {
-    const GLShader* vertex = nullptr;
-    const GLShader* fragment = nullptr;
-};
-
-OpenGLShaderPair GetOpenGLShaders(const renderer::ProgramModuleDesc& description) {
-    const auto* vertex_shader = dynamic_cast<const GLShader*>(&description.vertex_shader);
-    const auto* fragment_shader = dynamic_cast<const GLShader*>(&description.fragment_shader);
-    FE_THROW_IF(vertex_shader == nullptr || fragment_shader == nullptr,
-                "OpenGL program requires OpenGL shader modules");
-    detail::RequireValid(vertex_shader->IsValid(), "create OpenGL program", "vertex shader");
-    detail::RequireValid(fragment_shader->IsValid(), "create OpenGL program", "fragment shader");
-    FE_THROW_IF(vertex_shader->GetType() != ShaderType::Vertex ||
-                    fragment_shader->GetType() != ShaderType::Fragment,
+void ValidateShaders(const GLShader& vertex_shader, const GLShader& fragment_shader) {
+    detail::RequireValid(vertex_shader.IsValid(), "create OpenGL program", "vertex shader");
+    detail::RequireValid(fragment_shader.IsValid(), "create OpenGL program", "fragment shader");
+    FE_THROW_IF(vertex_shader.GetType() != ShaderType::Vertex ||
+                    fragment_shader.GetType() != ShaderType::Fragment,
                 "OpenGL program requires a vertex shader followed by a fragment shader");
-    return {.vertex = vertex_shader, .fragment = fragment_shader};
 }
 
-GLuint LinkProgram(const OpenGLShaderPair& shaders) {
+GLuint LinkProgram(const GLShader& vertex_shader, const GLShader& fragment_shader) {
+    ValidateShaders(vertex_shader, fragment_shader);
     GLuint id = 0;
     try {
         FE_GL(id = glCreateProgram());
         FE_THROW_IF(id == 0, "Failed to create OpenGL program");
-        FE_GL(glAttachShader(id, shaders.vertex->Id()));
-        FE_GL(glAttachShader(id, shaders.fragment->Id()));
+        FE_GL(glAttachShader(id, vertex_shader.Id()));
+        FE_GL(glAttachShader(id, fragment_shader.Id()));
         FE_GL(glLinkProgram(id));
         CheckProgramLinking(id);
-        FE_GL(glDetachShader(id, shaders.vertex->Id()));
-        FE_GL(glDetachShader(id, shaders.fragment->Id()));
+        FE_GL(glDetachShader(id, vertex_shader.Id()));
+        FE_GL(glDetachShader(id, fragment_shader.Id()));
         return id;
     } catch (...) {
         if (id != 0) {
@@ -59,8 +50,8 @@ GLuint LinkProgram(const OpenGLShaderPair& shaders) {
 
 }  // namespace
 
-GLProgram::GLProgram(const renderer::ProgramModuleDesc& description)
-    : id_(LinkProgram(GetOpenGLShaders(description))) {}
+GLProgram::GLProgram(const GLShader& vertex_shader, const GLShader& fragment_shader)
+    : id_(LinkProgram(vertex_shader, fragment_shader)) {}
 
 GLProgram::~GLProgram() {
     if (id_ != 0) {
