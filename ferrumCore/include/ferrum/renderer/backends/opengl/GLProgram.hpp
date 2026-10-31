@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 #include "ferrum/renderer/ProgramModule.hpp"
 #include "ferrum/renderer/backends/opengl/GLShader.hpp"
 
@@ -21,10 +24,12 @@ public:
 
     bool IsValid() const noexcept { return id_ != 0; }
     void Use() const;
+    void SetParameter(std::string_view name, const renderer::ProgramParameterValue& value) override;
     unsigned int Id() const noexcept { return id_; }
 
 private:
     unsigned int id_ = 0;
+    std::unordered_map<std::string, int> parameter_locations_;
 };
 
 }  // namespace ferrum::renderer::opengl
