@@ -66,9 +66,12 @@ int main() {
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
     ferrum::renderer::Material material(*program_module);
-    ferrum::renderer::Camera2D camera(800.0F / 600.0F);
+    ferrum::renderer::Camera2D camera;
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
+        const auto framebuffer_size = window->GetFramebufferSize();
+        camera.SetAspectRatio(static_cast<float>(framebuffer_size.x) /
+                              static_cast<float>(framebuffer_size.y));
         renderer->BeginFrame(camera.GetMatrices());
         renderer->Clear(background_color);
         renderer->Draw(material, *mesh_resource);

@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <functional>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <utility>
 
@@ -30,6 +31,8 @@ public:
     void SetRefreshCallback(RefreshCallback callback) { refresh_callback_ = std::move(callback); }
     virtual void PollEvents() = 0;
     virtual bool ShouldClose() const = 0;
+    // Returns the drawable size in pixels, which may differ from the logical window size.
+    virtual glm::ivec2 GetFramebufferSize() const = 0;
 
 protected:
     // Notify the window that it needs to refresh its contents.

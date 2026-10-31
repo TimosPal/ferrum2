@@ -69,6 +69,13 @@ GLFWWindow::GLFWWindow(const WindowDesc& data, graphics::GraphicsAPI api) : wind
 
 GLFWWindow::~GLFWWindow() { graphics_binding_.reset(); }
 
+glm::ivec2 GLFWWindow::GetFramebufferSize() const {
+    int width = 0;
+    int height = 0;
+    glfwGetFramebufferSize(window_.get(), &width, &height);
+    return {width, height};
+}
+
 void GLFWWindow::RefreshCallback(GLFWwindow* window) {
     auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
     if (self != nullptr) {

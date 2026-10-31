@@ -20,6 +20,7 @@ public:
 
     void PollEvents() override;
     bool ShouldClose() const override;
+    glm::ivec2 GetFramebufferSize() const override;
 
 private:
     static void RefreshCallback(GLFWwindow* window);
