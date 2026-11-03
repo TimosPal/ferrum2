@@ -2,29 +2,34 @@
 
 #include <utility>
 
+#include "ferrum/common/exception.hpp"
+
 namespace ferrum::renderer {
+
+Material::Material(resources::ResourceHandle<ProgramModule> program,
+                   std::unordered_map<std::string, resources::ResourceHandle<Texture>> textures)
+    : program_(std::move(program)), textures_(std::move(textures)) {
+    FE_THROW_IF(!program_.IsValid(), "Material requires a valid program handle");
+    for (const auto& [sampler_name, texture] : textures_) {
+        FE_THROW_IF(!texture.IsValid(), "Material texture '{}' requires a valid handle",
+                    sampler_name);
+    }
+}
 
 void Material::SetParameter(std::string_view name, ProgramParameterValue value) {
     parameters_[std::string(name)] = std::move(value);
 }
 
-void Material::SetTexture(std::string_view sampler_name, const Texture& texture) {
-    auto [binding, inserted] = textures_.try_emplace(
-        std::string(sampler_name), TextureBinding{.texture = &texture, .texture_unit = 0});
-    if (inserted) {
-        binding->second.texture_unit = static_cast<unsigned int>(textures_.size() - 1);
-    } else {
-        binding->second.texture = &texture;
-    }
-}
-
 void Material::Apply() {
+    auto& program = GetProgram();
     for (const auto& [name, value] : parameters_) {
-        program_.SetParameter(name, value);
+        program.SetParameter(name, value);
     }
-    for (const auto& [sampler_name, binding] : textures_) {
-        binding.texture->Bind(binding.texture_unit);
-        program_.SetParameter(sampler_name, static_cast<int>(binding.texture_unit));
+    unsigned int texture_unit = 0;
+    for (auto& [sampler_name, texture] : textures_) {
+        texture.GetResource()->Bind(texture_unit);
+        program.SetParameter(sampler_name, static_cast<int>(texture_unit));
+        ++texture_unit;
     }
 }
 

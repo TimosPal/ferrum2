@@ -78,8 +78,7 @@ int main() {
         .image = image.handle,
     });
 
-    ferrum::renderer::Material material(*program.handle.GetResource());
-    material.SetTexture("spriteTexture", *texture.handle.GetResource());
+    ferrum::renderer::Material material(program.handle, {{"spriteTexture", texture.handle}});
     ferrum::renderer::Camera2D camera;
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {

@@ -6,29 +6,26 @@
 
 #include "ferrum/renderer/ProgramModule.hpp"
 #include "ferrum/renderer/Texture.hpp"
+#include "ferrum/resources/ResourceHandle.hpp"
 
 namespace ferrum::renderer {
 
 class Material {
 public:
-    explicit Material(ProgramModule& program) : program_(program) {}
+    // The resource manager must outlive the material.
+    Material(resources::ResourceHandle<ProgramModule> program,
+             std::unordered_map<std::string, resources::ResourceHandle<Texture>> textures);
 
-    ProgramModule& GetProgram() noexcept { return program_; }
-    const ProgramModule& GetProgram() const noexcept { return program_; }
+    ProgramModule& GetProgram() { return *program_.GetResource(); }
+    const ProgramModule& GetProgram() const { return *program_.GetResource(); }
 
     void SetParameter(std::string_view name, ProgramParameterValue value);
-    void SetTexture(std::string_view sampler_name, const Texture& texture);
     void Apply();
 
 private:
-    struct TextureBinding {
-        const Texture* texture;
-        unsigned int texture_unit;
-    };
-
-    ProgramModule& program_;
+    mutable resources::ResourceHandle<ProgramModule> program_;
     std::unordered_map<std::string, ProgramParameterValue> parameters_;
-    std::unordered_map<std::string, TextureBinding> textures_;
+    std::unordered_map<std::string, resources::ResourceHandle<Texture>> textures_;
 };
 
 }  // namespace ferrum::renderer
