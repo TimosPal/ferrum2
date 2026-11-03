@@ -1,35 +1,15 @@
 #pragma once
 
-#include <filesystem>
+#include <functional>
 #include <memory>
-#include <optional>
-#include <utility>
 
 #include "ferrum/common/exception.hpp"
-#include "ferrum/resources/LoaderManager.hpp"
 #include "ferrum/resources/Resource.hpp"
 
 namespace ferrum::resources {
 
-class Loader {
-public:
-    Loader(std::filesystem::path path, LoaderManager::LoaderCallback callback)
-        : load_path(std::move(path)), loader_cb(std::move(callback)) {}
-    bool HasLoadPath() const { return !load_path.empty(); }
-    bool HasLoaderCallback() const { return loader_cb != nullptr; }
-    bool IsValid() const { return HasLoadPath() && HasLoaderCallback(); }
-    auto Load() {
-        FE_THROW_IF(!IsValid(), "Loader is not valid");
-        return loader_cb(load_path);
-    }
-
-private:
-    std::filesystem::path load_path;
-    LoaderManager::LoaderCallback loader_cb = nullptr;
-};
-
 struct ResourceEntry {
-    std::optional<Loader> loader;
+    std::function<std::unique_ptr<Resource>()> create;
     std::unique_ptr<Resource> resource;
     // How the resource should be evicted when no longer referenced by any handles
     enum class EvictionPolicy {
@@ -40,16 +20,18 @@ struct ResourceEntry {
     size_t active_references = 0;
 
     bool HasResource() const { return resource != nullptr; }
-    bool HasLoadPath() const { return loader.has_value() && loader->HasLoadPath(); }
-    Resource* Load() {
+    Resource* GetOrCreate() {
         if (HasResource()) {
             // If already cached by other handle, return it directly
             return resource.get();
         }
 
-        FE_THROW_IF(!loader.has_value(), "Loader is not set");
-        // Load can throw
-        resource = loader->Load();
+        FE_THROW_IF(!create, "Resource creation callback is not set");
+        resource = create();
+        FE_THROW_IF(resource == nullptr, "Resource creation callback returned null");
+        if (policy == EvictionPolicy::Keep) {
+            create = nullptr;
+        }
         return resource.get();
     }
     void Reset() { resource.reset(); }

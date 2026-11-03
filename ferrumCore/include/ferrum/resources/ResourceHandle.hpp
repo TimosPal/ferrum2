@@ -54,15 +54,15 @@ public:
         if (cached_resource_ != nullptr) {
             return cached_resource_;
         }
-        // Can throw on load
-        cached_resource_ = CastResource(resource_entry_->Load());
+        cached_resource_ = CastResource(resource_entry_->GetOrCreate());
         return cached_resource_;
     }
 
 private:
     static T* CastResource(Resource* resource) {
         if (resource == nullptr) {
-            FE_THROW("Loader returned null for requested resource type '{}'", typeid(T).name());
+            FE_THROW("Resource creation returned null for requested resource type '{}'",
+                     typeid(T).name());
         }
         auto* typed_resource = dynamic_cast<T*>(resource);
         if (typed_resource == nullptr) {

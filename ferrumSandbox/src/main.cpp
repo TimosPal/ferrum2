@@ -12,6 +12,7 @@
 #include "ferrum/renderer/ProgramModule.hpp"
 #include "ferrum/renderer/Renderer.hpp"
 #include "ferrum/renderer/ShaderModule.hpp"
+#include "ferrum/renderer/Texture.hpp"
 #include "ferrum/renderer/primitives/Quad.hpp"
 #include "ferrum/resources/ResourceManager.hpp"
 #include "ferrum/resources/types/ImageResource.hpp"
@@ -21,7 +22,10 @@ int main() {
     using ferrum::graphics::Color;
     using ferrum::graphics::GraphicsAPI;
     using ferrum::graphics::GraphicsDevice;
+    using ferrum::renderer::ProgramModule;
+    using ferrum::renderer::ShaderModule;
     using ferrum::renderer::ShaderType;
+    using ferrum::renderer::Texture;
     using ferrum::renderer::primitives::Quad;
     using ferrum::renderer::vertices::Vertex2D;
     using ferrum::resources::ResourceManager;
@@ -42,21 +46,21 @@ int main() {
         resources.LoadResource<TextResource>(shader_directory / "quad.vert");
     auto fragment_shader_source =
         resources.LoadResource<TextResource>(shader_directory / "quad.frag");
-    const ferrum::renderer::ShaderModuleDesc vertex_shader_description{
+    auto vertex_shader = resources.CreateDeferredResource<ShaderModule>({
+        .device = *device,
         .type = ShaderType::Vertex,
-        .source = vertex_shader_source.handle.GetResource()->GetText(),
-    };
-    const ferrum::renderer::ShaderModuleDesc fragment_shader_description{
+        .source = vertex_shader_source.handle,
+    });
+    auto fragment_shader = resources.CreateDeferredResource<ShaderModule>({
+        .device = *device,
         .type = ShaderType::Fragment,
-        .source = fragment_shader_source.handle.GetResource()->GetText(),
-    };
-    auto vertex_shader = device->CreateShaderModule(vertex_shader_description);
-    auto fragment_shader = device->CreateShaderModule(fragment_shader_description);
-    const ferrum::renderer::ProgramModuleDesc program_description{
-        .vertex_shader = *vertex_shader,
-        .fragment_shader = *fragment_shader,
-    };
-    auto program_module = device->CreateProgramModule(program_description);
+        .source = fragment_shader_source.handle,
+    });
+    auto program = resources.CreateDeferredResource<ProgramModule>({
+        .device = *device,
+        .vertex_shader = vertex_shader.handle,
+        .fragment_shader = fragment_shader.handle,
+    });
 
     const ferrum::renderer::VertexBufferConfig vertex_buffer{
         std::span<const Vertex2D>(Quad::vertices),
@@ -68,13 +72,14 @@ int main() {
     const ferrum::renderer::MeshDesc mesh_description{vertex_buffer, index_buffer};
     auto mesh_resource = device->CreateMesh(mesh_description);
 
-    ImageResource image(1, 1, 4, {255, 255, 255, 255});
-    auto texture = device->CreateTexture(
-        {.width = image.GetWidth(), .height = image.GetHeight(), .channels = image.GetChannels()});
-    texture->Upload(image);
+    auto image = resources.CreateResource(ImageResource(1, 1, 4, {255, 255, 255, 255}));
+    auto texture = resources.CreateDeferredResource<Texture>({
+        .device = *device,
+        .image = image.handle,
+    });
 
-    ferrum::renderer::Material material(*program_module);
-    material.SetTexture("spriteTexture", *texture);
+    ferrum::renderer::Material material(*program.handle.GetResource());
+    material.SetTexture("spriteTexture", *texture.handle.GetResource());
     ferrum::renderer::Camera2D camera;
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {

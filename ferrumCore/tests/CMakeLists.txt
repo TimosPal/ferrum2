@@ -1,6 +1,10 @@
 add_executable(ferrumCoreTests
+    resources/FactoryManagerTests.cpp
     resources/ResourceHandleTests.cpp
     resources/ResourceManagerTests.cpp
+    resources/ShaderFactoryTests.cpp
+    resources/ProgramFactoryTests.cpp
+    resources/TextureFactoryTests.cpp
 )
 target_link_libraries(ferrumCoreTests PRIVATE Ferrum::Core GTest::gtest_main)
 target_compile_definitions(ferrumCoreTests PRIVATE

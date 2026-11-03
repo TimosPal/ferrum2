@@ -2,6 +2,8 @@
 
 #include <string_view>
 
+#include "ferrum/resources/Resource.hpp"
+
 namespace ferrum::renderer {
 
 enum class ShaderType {
@@ -14,9 +16,9 @@ struct ShaderModuleDesc {
     std::string_view source;
 };
 
-class ShaderModule {
+class ShaderModule : public resources::Resource {
 public:
-    virtual ~ShaderModule() = default;
+    ~ShaderModule() override = default;
     ShaderModule(const ShaderModule&) = delete;
     ShaderModule& operator=(const ShaderModule&) = delete;
     ShaderModule(ShaderModule&&) noexcept = default;

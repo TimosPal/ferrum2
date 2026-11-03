@@ -5,6 +5,7 @@
 #include <variant>
 
 #include "ferrum/renderer/ShaderModule.hpp"
+#include "ferrum/resources/Resource.hpp"
 
 namespace ferrum::renderer {
 
@@ -15,9 +16,9 @@ struct ProgramModuleDesc {
     const ShaderModule& fragment_shader;
 };
 
-class ProgramModule {
+class ProgramModule : public resources::Resource {
 public:
-    virtual ~ProgramModule() = default;
+    ~ProgramModule() override = default;
     ProgramModule(const ProgramModule&) = delete;
     ProgramModule& operator=(const ProgramModule&) = delete;
     ProgramModule(ProgramModule&&) noexcept = default;

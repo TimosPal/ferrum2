@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 
+#include "ferrum/resources/Resource.hpp"
 #include "ferrum/resources/types/ImageResource.hpp"
 
 namespace ferrum::renderer {
@@ -39,9 +40,9 @@ struct TextureDesc {
     resources::types::ImageDataType data_type = resources::types::ImageDataType::UnsignedByte;
 };
 
-class Texture {
+class Texture : public resources::Resource {
 public:
-    virtual ~Texture() = default;
+    ~Texture() override = default;
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
     Texture(Texture&&) noexcept = default;

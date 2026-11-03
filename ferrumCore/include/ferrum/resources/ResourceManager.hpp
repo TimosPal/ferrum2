@@ -10,9 +10,11 @@
 
 #include "ferrum/common/exception.hpp"
 #include "ferrum/containers/SlotMap.hpp"
+#include "ferrum/resources/FactoryManager.hpp"
 #include "ferrum/resources/LoaderManager.hpp"
 #include "ferrum/resources/ResourceEntry.hpp"
 #include "ferrum/resources/ResourceHandle.hpp"
+#include "ferrum/resources/factories.hpp"
 #include "ferrum/resources/loaders.hpp"
 #include "ferrum/resources/types/ImageResource.hpp"
 #include "ferrum/resources/types/TextResource.hpp"
@@ -32,21 +34,33 @@ public:
     ResourceManager() {
         loaders_.RegisterLoader<types::TextResource>(loaders::LoadTextResource);
         loaders_.RegisterLoader<types::ImageResource>(loaders::LoadImageResource);
+        factories_.RegisterFactory<renderer::ShaderModule>(factories::CreateShaderModule);
+        factories_.RegisterFactory<renderer::ProgramModule>(factories::CreateProgramModule);
+        factories_.RegisterFactory<renderer::Texture>(factories::CreateTexture);
     }
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
     ResourceManager(ResourceManager&&) = delete;
     ResourceManager& operator=(ResourceManager&&) = delete;
     ~ResourceManager() {
-        // Release dependencies while every entry referenced by a handle is still alive.
+        // Release resources and factory captures while all handle entries are still alive.
         for (auto& entry : resources_.Values()) {
             entry->Reset();
+            entry->create = nullptr;
         }
     }
 
     template <typename T>
     auto CreateResource(T&& resource);
 
+    template <typename T>
+    auto CreateResource(std::unique_ptr<T> resource);
+
+    // Create a resource on first access through GetResource()
+    template <typename T>
+    auto CreateDeferredResource(typename FactoryTraits<T>::Description description);
+
+    // Loads a resource on first access through GetResource()
     template <typename T>
     auto LoadResource(const std::filesystem::path& load_path);
 
@@ -61,6 +75,7 @@ private:
     using ResourceKey = std::tuple<std::filesystem::path, std::type_index>;
     std::map<ResourceKey, key> dedups_;
     LoaderManager loaders_;
+    FactoryManager factories_;
 };
 
 template <typename T>
@@ -95,7 +110,8 @@ inline auto ResourceManager::LoadResource(const std::filesystem::path& load_path
     auto loader_callback = loaders_.GetLoader<T>();
     FE_THROW_IF(loader_callback == nullptr, "Loader callback is not set");
     std::unique_ptr<ResourceEntry> entry = std::make_unique<ResourceEntry>(ResourceEntry{
-        .loader = Loader{normalized_path, loader_callback},
+        .create = [path = normalized_path,
+                   loader = std::move(loader_callback)] { return loader(path); },
         .policy = ResourceEntry::EvictionPolicy::Discard,
     });
     auto key = resources_.Create(std::move(entry));
@@ -107,17 +123,42 @@ inline auto ResourceManager::LoadResource(const std::filesystem::path& load_path
 }
 
 template <typename T>
+inline auto ResourceManager::CreateDeferredResource(
+    typename FactoryTraits<T>::Description description) {
+    static_assert(std::is_base_of_v<Resource, T>);
+    auto factory = factories_.GetFactory<T>();
+    FE_THROW_IF(!factory, "Resource factory is not registered");
+    auto entry = std::make_unique<ResourceEntry>(ResourceEntry{
+        .create = [factory = std::move(factory), description = std::move(description)]() mutable
+            -> std::unique_ptr<Resource> { return factory(description); },
+        .policy = ResourceEntry::EvictionPolicy::Keep,
+    });
+    auto key = resources_.Create(std::move(entry));
+    return ManagedResource<T>{
+        key,
+        ResourceHandle<T>(resources_.Get(key)->get()),
+    };
+}
+
+template <typename T>
 inline auto ResourceManager::CreateResource(T&& resource) {
     using ResourceType = std::remove_cvref_t<T>;
+    return CreateResource(std::make_unique<ResourceType>(std::forward<T>(resource)));
+}
+
+template <typename T>
+inline auto ResourceManager::CreateResource(std::unique_ptr<T> resource) {
+    static_assert(std::is_base_of_v<Resource, T>);
+    FE_THROW_IF(resource == nullptr, "Cannot manage a null resource");
     std::unique_ptr<ResourceEntry> entry = std::make_unique<ResourceEntry>(ResourceEntry{
-        .resource = std::make_unique<ResourceType>(std::forward<T>(resource)),
+        .resource = std::move(resource),
         .policy = ResourceEntry::EvictionPolicy::Keep,  // Created resources cant be re-loaded so
                                                         // they are kept
     });
     auto key = resources_.Create(std::move(entry));
-    return ManagedResource<ResourceType>{
+    return ManagedResource<T>{
         key,
-        ResourceHandle<ResourceType>(resources_.Get(key)->get()),
+        ResourceHandle<T>(resources_.Get(key)->get()),
     };
 }
 

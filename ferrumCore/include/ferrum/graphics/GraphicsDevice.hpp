@@ -30,6 +30,7 @@ public:
     GraphicsDevice& operator=(GraphicsDevice&&) = delete;
 
     virtual std::unique_ptr<renderer::Renderer> CreateRenderer() = 0;
+    // GPU resources must be destroyed before their device and graphics context become invalid.
     virtual std::unique_ptr<renderer::ShaderModule> CreateShaderModule(
         const renderer::ShaderModuleDesc& description) = 0;
     virtual std::unique_ptr<renderer::ProgramModule> CreateProgramModule(

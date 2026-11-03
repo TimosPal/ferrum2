@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <filesystem>
+#include <memory>
+#include <utility>
 
+#include "TestGraphicsDevice.hpp"
 #include "ferrum/common/exception.hpp"
 #include "ferrum/resources/ResourceManager.hpp"
 
@@ -10,7 +13,10 @@ namespace {
 
 using types::TextResource;
 
-class UnregisteredResource final : public Resource {};
+class UnregisteredResource final : public Resource {
+public:
+    using Description = int;
+};
 
 TEST(ResourceManager, RetrievesCreatedResourcesById) {
     ResourceManager manager;
@@ -32,6 +38,11 @@ TEST(ResourceManager, ReturnsNullHandleForMissingResourceId) {
 TEST(ResourceManager, RejectsLoadWithoutRegisteredLoader) {
     ResourceManager manager;
     EXPECT_THROW(manager.LoadResource<UnregisteredResource>("unregistered"), common::Exception);
+}
+
+TEST(ResourceManager, RejectsCreationWithoutRegisteredFactory) {
+    ResourceManager manager;
+    EXPECT_THROW(manager.CreateDeferredResource<UnregisteredResource>(42), common::Exception);
 }
 
 TEST(ResourceManager, KeepsCreatedResourcesAfterLastHandleIsReleased) {
@@ -81,6 +92,48 @@ TEST(ResourceManager, RejectsResourceTypeMismatches) {
     ResourceManager manager;
     auto text = manager.CreateResource(TextResource("hello"));
     EXPECT_THROW(manager.GetResource<types::ImageResource>(text.id), common::Exception);
+}
+
+TEST(ResourceManager, ValidatesDeferredResourceTypesOnFirstAccess) {
+    testing::TestGraphicsDevice device;
+    ResourceManager manager;
+    auto source = manager.CreateResource(TextResource("source"));
+    auto shader = manager.CreateDeferredResource<renderer::ShaderModule>({
+        .device = device,
+        .type = renderer::ShaderType::Vertex,
+        .source = source.handle,
+    });
+    auto mismatched = manager.GetResource<TextResource>(shader.id);
+    EXPECT_EQ(device.compilation_count, 0);
+    EXPECT_THROW(mismatched.GetResource(), common::Exception);
+    EXPECT_NE(shader.handle.GetResource(), nullptr);
+    EXPECT_EQ(device.compilation_count, 1);
+}
+
+TEST(ResourceManager, AdoptsAlreadyCreatedGpuResource) {
+    testing::TestGraphicsDevice device;
+    {
+        ResourceManager manager;
+        auto module = device.CreateShaderModule({
+            .type = renderer::ShaderType::Vertex,
+            .source = "source",
+        });
+        auto* expected = module.get();
+        auto shader = manager.CreateResource(std::move(module));
+        EXPECT_EQ(module, nullptr);
+        EXPECT_EQ(shader.handle.GetResource(), expected);
+        auto retrieved = manager.GetResource<renderer::ShaderModule>(shader.id);
+        EXPECT_EQ(retrieved.GetResource(), expected);
+        EXPECT_EQ(device.compilation_count, 1);
+        EXPECT_EQ(device.destruction_count, 0);
+    }
+    EXPECT_EQ(device.destruction_count, 1);
+}
+
+TEST(ResourceManager, RejectsNullOwnedResource) {
+    ResourceManager manager;
+    EXPECT_THROW(manager.CreateResource(std::unique_ptr<renderer::ShaderModule>{}),
+                 common::Exception);
 }
 
 }  // namespace
