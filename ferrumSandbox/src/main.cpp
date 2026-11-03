@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <filesystem>
+#include <glm/gtc/matrix_transform.hpp>
 #include <span>
 
 #include "ferrum/core/Platform.hpp"
@@ -79,6 +80,12 @@ int main() {
     });
 
     ferrum::renderer::Material material(program.handle, {{"spriteTexture", texture.handle}});
+    auto left_model = glm::translate(glm::mat4(1.0F), glm::vec3(-0.92F, -0.25F, 0.0F));
+    left_model = glm::rotate(left_model, 0.35F, glm::vec3(0.0F, 0.0F, 1.0F));
+    left_model = glm::scale(left_model, glm::vec3(0.4F, 0.4F, 1.0F));
+    auto right_model = glm::translate(glm::mat4(1.0F), glm::vec3(0.92F, 0.25F, 0.0F));
+    right_model = glm::rotate(right_model, -0.4F, glm::vec3(0.0F, 0.0F, 1.0F));
+    right_model = glm::scale(right_model, glm::vec3(0.45F, 0.65F, 1.0F));
     ferrum::renderer::Camera2D camera;
     const Color background_color{.r = 0.12F, .g = 0.2F, .b = 0.32F};
     const auto render_frame = [&] {
@@ -87,7 +94,9 @@ int main() {
                               static_cast<float>(framebuffer_size.y));
         renderer->BeginFrame(camera.GetMatrices());
         renderer->Clear(background_color);
+        renderer->Draw(material, *mesh_resource, left_model);
         renderer->Draw(material, *mesh_resource);
+        renderer->Draw(material, *mesh_resource, right_model);
         renderer->EndFrame();
     };
     window->SetRefreshCallback(render_frame);

@@ -76,18 +76,21 @@ void GLRenderer::DrawProgram(const renderer::ProgramModule& program, renderer::M
         reinterpret_cast<void*>(index_offset * open_gl_mesh->index_buffer_.index_size_bytes)));
 }
 
-void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh,
+void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, const glm::mat4& model,
                       renderer::PrimitiveTopology topology) {
-    Draw(material, mesh, mesh.IndexCount(), 0, topology);
+    Draw(material, mesh, mesh.IndexCount(), 0, model, topology);
 }
 
 void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
-                      std::size_t index_offset, renderer::PrimitiveTopology topology) {
+                      std::size_t index_offset, const glm::mat4& model,
+                      renderer::PrimitiveTopology topology) {
     binding_.MakeCurrent();
     FE_THROW_IF(camera_matrices_ == nullptr, "Cannot draw without an active camera frame");
-    material.GetProgram().SetParameter("viewProjection", camera_matrices_->view_projection);
     material.Apply();
-    DrawProgram(material.GetProgram(), mesh, index_count, index_offset, topology);
+    auto& program = material.GetProgram();
+    program.SetParameter("viewProjection", camera_matrices_->view_projection);
+    program.SetParameter("model", model);
+    DrawProgram(program, mesh, index_count, index_offset, topology);
 }
 
 void GLRenderer::EndFrame() {

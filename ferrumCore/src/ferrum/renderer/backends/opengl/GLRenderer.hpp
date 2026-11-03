@@ -18,10 +18,11 @@ public:
     void Clear(const graphics::Color& color) override;
     void Draw(
         renderer::Material& material, renderer::Mesh& mesh,
+        const glm::mat4& model = glm::mat4(1.0F),
         renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
     void Draw(
         renderer::Material& material, renderer::Mesh& mesh, std::size_t index_count,
-        std::size_t index_offset,
+        std::size_t index_offset, const glm::mat4& model = glm::mat4(1.0F),
         renderer::PrimitiveTopology topology = renderer::PrimitiveTopology::Triangles) override;
     void EndFrame() override;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <glm/mat4x4.hpp>
 
 #include "ferrum/graphics/Color.hpp"
 #include "ferrum/renderer/CameraMatrices.hpp"
@@ -20,10 +21,11 @@ public:
 
     virtual void BeginFrame(const CameraMatrices& camera_matrices) = 0;
     virtual void Clear(const graphics::Color& color) = 0;
-    virtual void Draw(Material& material, Mesh& mesh,
+    // Model and viewProjection are renderer-owned shader uniforms.
+    virtual void Draw(Material& material, Mesh& mesh, const glm::mat4& model = glm::mat4(1.0F),
                       PrimitiveTopology topology = PrimitiveTopology::Triangles) = 0;
     virtual void Draw(Material& material, Mesh& mesh, std::size_t index_count,
-                      std::size_t index_offset,
+                      std::size_t index_offset, const glm::mat4& model = glm::mat4(1.0F),
                       PrimitiveTopology topology = PrimitiveTopology::Triangles) = 0;
     virtual void EndFrame() = 0;
 

@@ -5,12 +5,13 @@ layout(location = 1) in vec2 uv;
 layout(location = 2) in vec4 tint;
 
 uniform mat4 viewProjection;
+uniform mat4 model;
 
 out vec2 fragmentUv;
 out vec4 fragmentTint;
 
 void main() {
-    gl_Position = viewProjection * vec4(position, 0.0, 1.0);
+    gl_Position = viewProjection * model * vec4(position, 0.0, 1.0);
     fragmentUv = uv;
     fragmentTint = tint;
 }
