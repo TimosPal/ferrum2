@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -54,6 +55,19 @@ public:
     }
 
     bool Valid(Key key) const { return Find(key) != nullptr; }
+
+    // Views live values. Creating or destroying slots invalidates existing views and iterators.
+    auto Values() {
+        return slots_ |
+               std::views::filter([](const Slot& slot) { return slot.value.has_value(); }) |
+               std::views::transform([](Slot& slot) -> T& { return *slot.value; });
+    }
+
+    auto Values() const {
+        return slots_ |
+               std::views::filter([](const Slot& slot) { return slot.value.has_value(); }) |
+               std::views::transform([](const Slot& slot) -> const T& { return *slot.value; });
+    }
 
     // Number of live values.
     std::size_t Size() const { return size_; }

@@ -37,7 +37,12 @@ public:
     ResourceManager& operator=(const ResourceManager&) = delete;
     ResourceManager(ResourceManager&&) = delete;
     ResourceManager& operator=(ResourceManager&&) = delete;
-    ~ResourceManager() = default;
+    ~ResourceManager() {
+        // Release dependencies while every entry referenced by a handle is still alive.
+        for (auto& entry : resources_.Values()) {
+            entry->Reset();
+        }
+    }
 
     template <typename T>
     auto CreateResource(T&& resource);
