@@ -12,6 +12,8 @@
 #include <vector>
 
 #include "ferrum/common/exception.hpp"
+#include "ferrum/resources/FontBackend.hpp"
+#include "ferrum/resources/types/FontResource.hpp"
 #include "ferrum/resources/types/ImageResource.hpp"
 #include "ferrum/resources/types/TextResource.hpp"
 
@@ -59,6 +61,11 @@ std::unique_ptr<Resource> LoadImageResource(std::filesystem::path const& path) {
     const auto data_size = pixel_count * static_cast<std::size_t>(channels);
     std::vector<std::uint8_t> pixels(image.get(), image.get() + data_size);
     return std::make_unique<types::ImageResource>(width, height, channels, std::move(pixels));
+}
+
+std::unique_ptr<Resource> LoadFontResource(std::filesystem::path const& path) {
+    auto backend = detail::CreateFontBackend(path);
+    return std::make_unique<types::FontResource>(std::move(backend));
 }
 
 }  // namespace ferrum::resources::loaders

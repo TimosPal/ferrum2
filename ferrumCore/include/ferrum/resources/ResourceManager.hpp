@@ -16,6 +16,7 @@
 #include "ferrum/resources/ResourceHandle.hpp"
 #include "ferrum/resources/factories.hpp"
 #include "ferrum/resources/loaders.hpp"
+#include "ferrum/resources/types/FontResource.hpp"
 #include "ferrum/resources/types/ImageResource.hpp"
 #include "ferrum/resources/types/TextResource.hpp"
 
@@ -34,6 +35,7 @@ public:
     ResourceManager() {
         loaders_.RegisterLoader<types::TextResource>(loaders::LoadTextResource);
         loaders_.RegisterLoader<types::ImageResource>(loaders::LoadImageResource);
+        loaders_.RegisterLoader<types::FontResource>(loaders::LoadFontResource);
         factories_.RegisterFactory<renderer::ShaderModule>(factories::CreateShaderModule);
         factories_.RegisterFactory<renderer::ProgramModule>(factories::CreateProgramModule);
         factories_.RegisterFactory<renderer::Texture>(factories::CreateTexture);
