@@ -32,7 +32,8 @@ public:
 
     bool BeginFrame() override;
     void Clear(const Color& color) override;
-    void FillRect(const Rect& bounds, const Color& color) override;
+    void FillRect(const Rect& bounds, const Color& color,
+                  const CornerRadii& corner_radii = {}) override;
     void EndFrame() override;
 
 private:

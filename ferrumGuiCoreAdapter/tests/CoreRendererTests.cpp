@@ -20,6 +20,8 @@ struct TestState {
     bool null_mesh = false;
     bool fail_shader = false;
     glm::vec4 color{};
+    glm::vec2 rect_size{};
+    glm::vec4 corner_radii{};
 };
 
 class TestShader final : public renderer::ShaderModule {};
@@ -29,8 +31,18 @@ public:
     explicit TestProgram(TestState& state) : state_(state) {}
     void SetParameter(std::string_view name,
                       const renderer::ProgramParameterValue& value) override {
-        FE_THROW_IF(name != "color", "Unexpected test program parameter");
-        state_.color = std::get<glm::vec4>(value);
+        if (name == "color" || name == "cornerRadii") {
+            const auto vector = std::get<glm::vec4>(value);
+            if (name == "color") {
+                state_.color = vector;
+            } else {
+                state_.corner_radii = vector;
+            }
+        } else if (name == "rectSize") {
+            state_.rect_size = std::get<glm::vec2>(value);
+        } else {
+            FE_THROW("Unexpected test program parameter");
+        }
     }
 
 private:
@@ -144,12 +156,16 @@ TEST_F(CoreRendererTest, MapsTopLeftBoundsToSharedCenteredQuadAndForwardsColor) 
               glm::vec4(-1.0F, 1.0F, 0.0F, 1.0F));
     EXPECT_EQ(renderer.last_camera.view_projection * glm::vec4(800.0F, 600.0F, 0.0F, 1.0F),
               glm::vec4(1.0F, -1.0F, 0.0F, 1.0F));
-    adapter.FillRect({10.0F, 20.0F, 30.0F, 40.0F}, {1.0F, 0.25F, 0.5F, 0.5F});
+    adapter.FillRect(
+        {10.0F, 20.0F, 30.0F, 40.0F}, {1.0F, 0.25F, 0.5F, 0.5F},
+        {.top_left = 1.0F, .top_right = 2.0F, .bottom_right = 3.0F, .bottom_left = 4.0F});
     EXPECT_EQ(renderer.last_model * glm::vec4(-0.5F, -0.5F, 0.0F, 1.0F),
               glm::vec4(10.0F, 20.0F, 0.0F, 1.0F));
     EXPECT_EQ(renderer.last_model * glm::vec4(0.5F, 0.5F, 0.0F, 1.0F),
               glm::vec4(40.0F, 60.0F, 0.0F, 1.0F));
     EXPECT_EQ(state.color, glm::vec4(1.0F, 0.25F, 0.5F, 0.5F));
+    EXPECT_EQ(state.rect_size, glm::vec2(30.0F, 40.0F));
+    EXPECT_EQ(state.corner_radii, glm::vec4(1.0F, 2.0F, 3.0F, 4.0F));
     EXPECT_EQ(renderer.draws, 1);
     adapter.EndFrame();
     EXPECT_EQ(renderer.frame_operations, 2);
@@ -194,6 +210,28 @@ TEST_F(CoreRendererTest, RejectsInvalidBoundsBeforeDrawing) {
         EXPECT_THROW(adapter.FillRect(bounds, {}), common::Exception);
     }
     EXPECT_EQ(renderer.draws, 0);
+}
+
+TEST_F(CoreRendererTest, RejectsInvalidCornerRadiiBeforeDrawing) {
+    CoreRenderer adapter(renderer, device, resources, FramebufferSizeProvider());
+    const float infinity = std::numeric_limits<float>::infinity();
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    for (const CornerRadii radii :
+         {CornerRadii{.top_left = -1.0F}, CornerRadii{.top_right = infinity},
+          CornerRadii{.bottom_right = nan}}) {
+        EXPECT_THROW(adapter.FillRect({0.0F, 0.0F, 10.0F, 10.0F}, {}, radii), common::Exception);
+    }
+    EXPECT_EQ(renderer.draws, 0);
+}
+
+TEST_F(CoreRendererTest, ScalesOverlappingCornerRadiiToFitRectangle) {
+    CoreRenderer adapter(renderer, device, resources, FramebufferSizeProvider());
+    ASSERT_TRUE(adapter.BeginFrame());
+    adapter.FillRect(
+        {0.0F, 0.0F, 20.0F, 10.0F}, {},
+        {.top_left = 20.0F, .top_right = 20.0F, .bottom_right = 20.0F, .bottom_left = 20.0F});
+    EXPECT_EQ(state.corner_radii, glm::vec4(5.0F));
+    adapter.EndFrame();
 }
 
 TEST_F(CoreRendererTest, RejectsInvalidColorsBeforeDrawing) {

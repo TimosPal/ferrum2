@@ -88,7 +88,8 @@ void CoreRenderer::Clear(const Color& color) {
     renderer_.Clear({.r = color.r, .g = color.g, .b = color.b, .a = color.a});
 }
 
-void CoreRenderer::FillRect(const Rect& bounds, const Color& color) {
+void CoreRenderer::FillRect(const Rect& bounds, const Color& color,
+                            const CornerRadii& corner_radii) {
     FE_THROW_IF(!std::isfinite(bounds.x) || !std::isfinite(bounds.y) ||
                     !std::isfinite(bounds.width) || !std::isfinite(bounds.height),
                 "GUI rectangle bounds must be finite");
@@ -102,6 +103,11 @@ void CoreRenderer::FillRect(const Rect& bounds, const Color& color) {
     FE_THROW_IF(!valid_component(color.r) || !valid_component(color.g) ||
                     !valid_component(color.b) || !valid_component(color.a),
                 "GUI color components must be finite and in [0, 1]");
+    const auto valid_radius = [](float radius) { return std::isfinite(radius) && radius >= 0.0F; };
+    FE_THROW_IF(!valid_radius(corner_radii.top_left) || !valid_radius(corner_radii.top_right) ||
+                    !valid_radius(corner_radii.bottom_right) ||
+                    !valid_radius(corner_radii.bottom_left),
+                "GUI corner radii must be finite and non-negative");
     if (bounds.width == 0.0F || bounds.height == 0.0F) {
         return;
     }
@@ -111,6 +117,8 @@ void CoreRenderer::FillRect(const Rect& bounds, const Color& color) {
         glm::vec3(bounds.x + (bounds.width * 0.5F), bounds.y + (bounds.height * 0.5F), 0.0F));
     model = glm::scale(model, glm::vec3(bounds.width, bounds.height, 1.0F));
     material_.SetParameter("color", glm::vec4(color.r, color.g, color.b, color.a));
+    material_.SetParameter("rectSize", glm::vec2(bounds.width, bounds.height));
+    material_.SetParameter("cornerRadii", corner_radii.FitWithin(bounds).ToVec4());
     renderer_.Draw(material_, *quad_, model);
 }
 
