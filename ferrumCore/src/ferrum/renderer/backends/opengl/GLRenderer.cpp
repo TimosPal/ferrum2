@@ -43,11 +43,15 @@ GLRenderer::GLRenderer(graphics::OpenGLWindowBinding& binding) : binding_(bindin
 
 void GLRenderer::BeginFrame(const renderer::CameraMatrices& camera_matrices) {
     binding_.MakeCurrent();
+    FE_THROW_IF(frame_active_, "A renderer frame is already active");
     camera_matrices_ = &camera_matrices;
+    frame_active_ = true;
 }
 
 void GLRenderer::Clear(const graphics::Color& color) {
     binding_.MakeCurrent();
+    FE_THROW_IF(!frame_active_, "Cannot clear outside a renderer frame");
+    FE_THROW_IF(!color.IsValid(), "Clear color components must be finite and in [0, 1]");
     const auto framebuffer_size = binding_.GetFramebufferSize();
     FE_GL(glViewport(0, 0, framebuffer_size.x, framebuffer_size.y));
     FE_GL(glClearColor(color.r, color.g, color.b, color.a));
@@ -85,7 +89,7 @@ void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, std::s
                       std::size_t index_offset, const glm::mat4& model,
                       renderer::PrimitiveTopology topology) {
     binding_.MakeCurrent();
-    FE_THROW_IF(camera_matrices_ == nullptr, "Cannot draw without an active camera frame");
+    FE_THROW_IF(!frame_active_, "Cannot draw outside a renderer frame");
     material.Apply();
     auto& program = material.GetProgram();
     program.SetParameter("viewProjection", camera_matrices_->view_projection);
@@ -95,8 +99,10 @@ void GLRenderer::Draw(renderer::Material& material, renderer::Mesh& mesh, std::s
 
 void GLRenderer::EndFrame() {
     binding_.MakeCurrent();
-    camera_matrices_ = nullptr;
+    FE_THROW_IF(!frame_active_, "No renderer frame is active");
     binding_.SwapBuffers();
+    camera_matrices_ = nullptr;
+    frame_active_ = false;
 }
 
 }  // namespace ferrum::renderer::opengl

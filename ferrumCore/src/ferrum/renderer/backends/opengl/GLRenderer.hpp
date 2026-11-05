@@ -35,6 +35,7 @@ private:
 
     graphics::OpenGLWindowBinding& binding_;
     const renderer::CameraMatrices* camera_matrices_ = nullptr;
+    bool frame_active_ = false;
 };
 
 }  // namespace ferrum::renderer::opengl
